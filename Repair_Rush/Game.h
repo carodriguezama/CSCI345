@@ -4,8 +4,8 @@
 #include "MediaManager.h"
 using namespace std;
 
-void KarlsQuit() {
-  cerr << "Karl Wins"<<endl;
+void RRQuit() {
+  cerr << "You Win" <<endl;
   SDL_Quit();
 }
 
@@ -25,8 +25,8 @@ class Game {
       running=false;
       return;
     }
-    atexit(KarlsQuit);
-    window = SDL_CreateWindow("Karl Wins",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,800, 600,0);
+    atexit(RRQuit);
+    window = SDL_CreateWindow("Repair Rush",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,800, 600,0);
     if(!window){
         cerr << "Failed to create window"<<endl;
         running=false;
