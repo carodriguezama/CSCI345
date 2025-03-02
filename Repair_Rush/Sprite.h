@@ -13,6 +13,11 @@ class Sprite:public Tile {
     return ((other.x<x && x < other.x+other.rect.w) && 
             (other.y<y && y < other.y+other.rect.h));   
   }
+  bool isActive(Sprite &cursor) {//funciton to check if the user has selected the tool
+    if (this==&cursor) return false; // cursor cant select curspr
+    return ((cursor.x<x && x < cursor.x+cursor.rect.w) && 
+            (cursor.y<y && y < cursor.y+cursor.rect.h));   
+  }
   Sprite(MediaManager *mm,
     float x0=0,float y0=0,
     float vx0=0,float vy0=0,
