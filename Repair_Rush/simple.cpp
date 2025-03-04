@@ -6,7 +6,7 @@
 #include "Game.h"
 #include "Tile.h"
 #include "Sprite.h"
-#include "Animation.h"
+// #include "Animation.h"
  
 using namespace std;
 
@@ -128,6 +128,9 @@ class MyGame:public Game {
             if (event.window.event==SDL_WINDOWEVENT_CLOSE) running=false;
           }
         }
+
+        if(!bf->isActive() && !bf2->isActive() && !bf3->isActive() && !bf4->isActive() && !bf5->isActive())
+          running = false;
     }
     ~MyGame(){
       delete bf;

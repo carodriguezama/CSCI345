@@ -12,7 +12,7 @@ Made new function isActive to return value of new member bool active
 Made functions for setting active, vy, and vx
 */
 class Sprite:public Tile {
-   float vx,vy,x,y; 
+   float x,y; 
    bool active;
    public:
   //  bool didCollide(Sprite &other){
@@ -36,16 +36,6 @@ class Sprite:public Tile {
     active = b;
   }
 
-  void setVy(float vy0)
-  {
-    vy += vy0;
-  }
-
-  void setVx(float vx0)
-  {
-    vx += vx0;
-  }
-
   void setx(float x0)
   {
     x += x0;
@@ -62,10 +52,8 @@ class Sprite:public Tile {
        // cout << "Constructor Sprite" << x0 << ' ' << y0 << endl;
       //  if (vx0==-1) vx=rand() % (100 - -100) + -100;  // rand()%(max-min)+min;
       //  else
-        vx=vx0;
       //  if (vy0==-1) vy=rand() % (100 - -100) + -100;
       //  else
-        vy=vy0;
       //  if (x0==-1) x=rand() % 800;
       //  else
         x=x0;
@@ -80,8 +68,6 @@ class Sprite:public Tile {
   //     bounceY(); 
     //} 
    virtual void loop(float dt){ // dt in seconds
-      x+=vx*dt;
-      y+=vy*dt;
       rect.x=x;
       rect.y=y;
       // if (rect.x>800-rect.w) vx*=-1;
