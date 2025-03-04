@@ -18,7 +18,7 @@ Animation.h in the makefile. Need to still make the inventory system
 
 class MyGame:public Game {
     float dt;
-    Sprite *bf,*bf2,*bf3,*bf4, *cursor;
+    Sprite *bf,*bf2,*bf3,*bf4,*bf5, *cursor;//create a vector for the tools later on
     string tool;
     int n;
     Tile *back;
@@ -26,7 +26,7 @@ class MyGame:public Game {
     MyGame(int level=1):Game(){
         ifstream in;
         cursor = new Sprite(getMM(),"hand2.bmp",0,0);
-        in.open("loadtools.txt"); 
+        in.open("loadtools.txt"); //do this in one function like the animation
         in>>tool;
         srand(level);
         bf=new Sprite(getMM(),tool,600,225);
@@ -36,7 +36,8 @@ class MyGame:public Game {
         bf3=new Sprite(getMM(),tool,450,225);
         in>>tool;
         bf4=new Sprite(getMM(),tool,150,270);
-        cout<<tool<<endl;
+        in>>tool;
+        bf5=new Sprite(getMM(),tool,600,25);
         in.close();
         back=new Tile(getMM());
         dt=.01; 
@@ -46,6 +47,7 @@ class MyGame:public Game {
         bf2->loop(dt);
         bf3->loop(dt);
         bf4->loop(dt);
+        bf5->loop(dt);
         cursor->loop(dt);
         back->render(getRen());
         cursor->render(getRen());
@@ -59,16 +61,18 @@ class MyGame:public Game {
           bf3->render(getRen());
         if(bf4->isActive())
           bf4->render(getRen());
+        if(bf5->isActive())
+          bf5->render(getRen());
         SDL_RenderPresent(getRen()); 
         SDL_Delay(1000.0*dt);
         SDL_Event event;
         if (SDL_PollEvent(&event)){
           if (event.type==SDL_KEYDOWN){
             if (event.key.keysym.sym==SDLK_ESCAPE) running=false;
-            if (event.key.keysym.sym==SDLK_w) cursor->setVy(-5);
-            if (event.key.keysym.sym==SDLK_s) cursor->setVy(5);
-            if (event.key.keysym.sym==SDLK_a) cursor->setVx(-5);
-            if (event.key.keysym.sym==SDLK_d) cursor->setVx(5);
+            if (event.key.keysym.sym==SDLK_w) cursor->sety(-10);
+            if (event.key.keysym.sym==SDLK_s) cursor->sety(10);
+            if (event.key.keysym.sym==SDLK_a) cursor->setx(-10);
+            if (event.key.keysym.sym==SDLK_d) cursor->setx(10);
             if (event.key.keysym.sym==SDLK_SPACE)
             {
               if(bf->isActive())
@@ -107,6 +111,14 @@ class MyGame:public Game {
                   cout << "Tweezers Selected\n";
                 }
               }
+              if(bf5->isActive())
+              {
+                if(cursor->isTouching(*bf5))
+                {
+                  bf5->setActive(false);
+                  cout << "ScrewDriver Selected\n";
+                }
+              }
               else
                 cout << "None selected\n";
             }
@@ -122,6 +134,7 @@ class MyGame:public Game {
       delete bf2;
       delete bf3;
       delete bf4;
+      delete bf5;
       delete back;
       delete cursor;
     }

@@ -46,6 +46,15 @@ class Sprite:public Tile {
     vx += vx0;
   }
 
+  void setx(float x0)
+  {
+    x += x0;
+  } 
+  void sety(float y0)
+  {
+    y += y0;
+  }
+
   Sprite(MediaManager *mm, string fname="face.bmp", float x0=0,float y0=0,
     float vx0=0,float vy0=0):Tile(mm,fname)
     {
