@@ -1,5 +1,5 @@
-Soldering_Iron.bmp
-Air.bmp
-Thermal_Paste.bmp
-Tweezers.bmp
-ScrewDriver.bmp
+Soldering_Iron.bmp 600 225
+Air.bmp 300 270 
+Thermal_Paste.bmp 450 225
+Tweezers.bmp 150 270
+ScrewDriver.bmp 600 25
