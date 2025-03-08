@@ -10,38 +10,48 @@
  
 using namespace std;
 
-/*
-Reformatted the Sprite constructor, implemented the cursor, cursor control,
-and the ability to select tools with the cursor. Removed the inclusion of
-Animation.h in the makefile. Need to still make the inventory system
-*/
-
 class MyGame:public Game {
     float dt;
     int check, xpos, ypos;
-    Sprite *cursor;
+    Sprite *cursor, *character;
     vector<Sprite *> tools;
     string tool;
-    int n;
-    Tile *back;
+    int which;
+    Tile *back, *repair, *cabinet;
   public:
     MyGame(int level=1):Game(){
+        which = 1;
         cursor = new Sprite(getMM(),"hand2.bmp",0,0);
+        character = new Sprite(getMM(),"Character.bmp",0,0);
         ifstream in("loadtools.txt");
         while(!in.eof()) {
           in>>tool>>xpos>>ypos;
           tools.push_back(new Sprite(getMM(),tool,xpos,ypos));
         }
-        back=new Tile(getMM());
+        back = new Tile(getMM());
+        repair = new Tile(getMM(),"Repair_Shop.bmp");
+        cabinet = new Tile(getMM(),"Desktop.bmp");
+
         dt=.01; 
     }
     void loop() {
         for(auto face:tools) face->loop(dt);
         cursor->loop(dt);
+        character->loop(dt);
+        if(which==1) {
+        repair->render(getRen());
+        character->render(getRen());
+        }
+        else if(which==2) {
+        cabinet->render(getRen());
+        }
+        else {
         back->render(getRen());
         cursor->render(getRen());
         for(auto face:tools)if(face->isActive())
         face->render(getRen());
+
+        }
  
         SDL_RenderPresent(getRen()); 
         SDL_Delay(1000.0*dt);
@@ -49,10 +59,13 @@ class MyGame:public Game {
         if (SDL_PollEvent(&event)){
           if (event.type==SDL_KEYDOWN){
             if (event.key.keysym.sym==SDLK_ESCAPE) running=false;
-            if (event.key.keysym.sym==SDLK_w) cursor->sety(-10);
-            if (event.key.keysym.sym==SDLK_s) cursor->sety(10);
-            if (event.key.keysym.sym==SDLK_a) cursor->setx(-10);
-            if (event.key.keysym.sym==SDLK_d) cursor->setx(10);
+            if (event.key.keysym.sym==SDLK_w) {cursor->sety(-10); character->sety(-10);}
+            if (event.key.keysym.sym==SDLK_s) {cursor->sety(10); character->sety(10);}
+            if (event.key.keysym.sym==SDLK_a) {cursor->setx(-10); character->setx(-10);}
+            if (event.key.keysym.sym==SDLK_d) {cursor->setx(10); character->setx(10);}
+            if (event.key.keysym.sym==SDLK_r) which = 1;//repair
+            if (event.key.keysym.sym==SDLK_b) which = 2;//bench
+            if (event.key.keysym.sym==SDLK_c) which = 3;//Cabinet
             if (event.key.keysym.sym==SDLK_SPACE) {
               for(auto face:tools) {
                 if(face->isActive())

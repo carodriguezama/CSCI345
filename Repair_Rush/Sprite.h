@@ -15,11 +15,7 @@ class Sprite:public Tile {
    float x,y; 
    bool active;
    public:
-  //  bool didCollide(Sprite &other){
-  //   if (this==&other) return false; // can't collide with ourselves
-  //   return ((other.x<x && x < other.x+other.rect.w) && 
-  //           (other.y<y && y < other.y+other.rect.h));   
-  // }
+   
   bool isTouching(Sprite &tool) {//funciton to check if the user has selected the tool
     if (this==&tool) return false; // cursor cant select cursor
     return ((tool.x<x && x < tool.x+tool.rect.w) && 
@@ -38,7 +34,7 @@ class Sprite:public Tile {
 
   void setx(float x0)
   {
-    x += x0;
+    x +=x0;
   } 
   void sety(float y0)
   {
