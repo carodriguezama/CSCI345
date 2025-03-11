@@ -1,0 +1,3 @@
+Character.bmp 250 100
+Character2.bmp 250 100
+Character3.bmp 250 100

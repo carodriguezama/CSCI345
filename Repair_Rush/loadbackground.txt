@@ -1,3 +1,4 @@
-1 background.bmp
-2 background2.bmp
-3 background3.bmp
+Background2.bmp
+Repair_Shop.bmp
+Desktop.bmp
+Cover.bmp

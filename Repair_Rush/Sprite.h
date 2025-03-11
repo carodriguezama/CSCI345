@@ -34,7 +34,7 @@ class Sprite:public Tile {
 
   void setx(float x0)
   {
-    x +=x0;
+    x += x0;
   } 
   void sety(float y0)
   {
