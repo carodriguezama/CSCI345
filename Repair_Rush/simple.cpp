@@ -23,7 +23,7 @@ class MyGame:public Game {
         which = 0;
         //cursor = new Sprite(getMM(),"hand2.bmp",0,0);//Could maybe add this to the tools vector
         //computer = new Sprite(getMM(),"Computer.bmp",250,10);//Could add this to the tools vector
-        character = new Sprite(getMM(),"Character3.bmp",250,100);//Have three characters maybe be able to switch characters?
+        character = new Sprite(getMM(),"./Images/Character/Character.bmp",250,100);//Have three characters maybe be able to switch characters?
         ifstream in("loadtools.txt");
         while(!in.eof()) {
           in>>tool>>xpos>>ypos;

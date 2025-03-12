@@ -1,7 +1,7 @@
-Soldering_Iron.bmp 425 360
-Air.bmp 295 210 
-Thermal_Paste.bmp 425 220
-Tweezers.bmp 150 225
-ScrewDriver.bmp 200 365
-Computer.bmp 250 10
-hand2.bmp 0 0
+./Images/Tools/Soldering_Iron.bmp 425 360
+./Images/Tools/Air.bmp 295 210 
+./Images/Tools/Thermal_Paste.bmp 425 220
+./Images/Tools/Tweezers.bmp 150 225
+./Images/Tools/ScrewDriver.bmp 200 365
+./Images/Tools/Computer.bmp 250 10
+./Images/Tools/hand2.bmp 0 0
