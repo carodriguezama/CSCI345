@@ -29,7 +29,7 @@ class MyGame:public Game {
           in>>tool>>xpos>>ypos;
           tools.push_back(new Sprite(getMM(),tool,xpos,ypos));
         }
-        back = new Tile(getMM(),"Background2.bmp");//Maybe a background tile vector?
+        back = new Tile(getMM(),"background2.bmp");//Maybe a background tile vector?
         repair = new Tile(getMM(),"Repair_Shop.bmp");
         cabinet = new Tile(getMM(),"Desktop.bmp");
         intro = new Tile(getMM(),"Cover.bmp");
