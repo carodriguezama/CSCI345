@@ -24,15 +24,15 @@ class MyGame:public Game {
         //cursor = new Sprite(getMM(),"hand2.bmp",0,0);//Could maybe add this to the tools vector
         //computer = new Sprite(getMM(),"Computer.bmp",250,10);//Could add this to the tools vector
         character = new Sprite(getMM(),"./Images/Character/Character.bmp",250,100);//Have three characters maybe be able to switch characters?
-        ifstream in("loadtools.txt");
+        ifstream in("./game_textFiles/loadtools.txt");
         while(!in.eof()) {
           in>>tool>>xpos>>ypos;
           tools.push_back(new Sprite(getMM(),tool,xpos,ypos));
         }
-        back = new Tile(getMM(),"background2.bmp");//Maybe a background tile vector?
-        repair = new Tile(getMM(),"Repair_Shop.bmp");
-        cabinet = new Tile(getMM(),"Desktop.bmp");
-        intro = new Tile(getMM(),"Cover.bmp");
+        back = new Tile(getMM(),"./Images/Background/background2.bmp");//Maybe a background tile vector?
+        repair = new Tile(getMM(),"./Images/Background/Repair_Shop.bmp");
+        cabinet = new Tile(getMM(),"./Images/Background/Desktop.bmp");
+        intro = new Tile(getMM(),"./Images/Background/Cover.bmp");
 
         dt=.01; 
     }
