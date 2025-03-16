@@ -3,6 +3,8 @@
 #include <vector>
 #include <fstream>
 #include "SDL.h"
+#include "SDL_mixer.h"
+#include "SDL_ttf.h"
 #include "Game.h"
 #include "Tile.h"
 #include "Sprite.h"
@@ -13,16 +15,24 @@ using namespace std;
 class MyGame:public Game {
     float dt;
     int check, xpos, ypos;
-    Sprite /**cursor,*/ *character, *computer;
+    Sprite *character, *computer;
     vector<Sprite *> tools;
+    Mix_Chunk *wave,*grab;
+    TTF_Font* Sans;
+    SDL_Texture* Message;
+    SDL_Surface* surfaceMessage;
+    SDL_Rect Message_rect;
     string tool;
     int which;
     Tile *back, *repair, *cabinet, *intro;
   public:
     MyGame(int level=1):Game(){
         which = 0;
-        //cursor = new Sprite(getMM(),"hand2.bmp",0,0);//Could maybe add this to the tools vector
-        //computer = new Sprite(getMM(),"Computer.bmp",250,10);//Could add this to the tools vector
+        Sans = TTF_OpenFont("./Fonts/font.ttf", 50);
+        Message_rect.x = 500;  //controls the rect's x coordinate 
+        Message_rect.y = 200; // controls the rect's y coordinte
+        Message_rect.w = 300; // controls the width of the rect
+        Message_rect.h = 300; // controls the height of the rect
         character = new Sprite(getMM(),"./Images/Character/Character.bmp",250,100);//Have three characters maybe be able to switch characters?
         ifstream in("./game_textFiles/loadtools.txt");
         while(!in.eof()) {
@@ -35,37 +45,37 @@ class MyGame:public Game {
         intro = new Tile(getMM(),"./Images/Background/Cover.bmp");
 
         dt=.01; 
+        SDL_Color White = {0, 0, 0};
+        surfaceMessage =
+        TTF_RenderText_Solid(Sans, "Press R to start", White); 
+        wave = Mix_LoadWAV("./Sounds/footstep.wav");
+        grab = Mix_LoadWAV("./Sounds/grab.wav");
+        Message = SDL_CreateTextureFromSurface(getRen(), surfaceMessage);
+
     }
     void loop() {
-        for(auto face:tools) face->loop(dt);
-        //cursor->loop(dt);
+        for(auto tool:tools) tool->loop(dt);
         character->loop(dt);
-        //computer->loop(dt);
         if(which==0) {
           intro->render(getRen());
+          SDL_RenderCopy(getRen(), Message, NULL, &Message_rect);
         }
         else if(which==1) {
         character->setActive(true);
         repair->render(getRen());
         character->render(getRen());
-        //cursor->setActive(false);
         tools[6]->setActive(false);
         }
         else if(which==2) {
         cabinet->render(getRen());
-        //computer->render(getRen());
         tools[5]->render(getRen());
         }
         else {
-        //cursor->setActive(true);
         tools[6]->setActive(true);
         back->render(getRen());
         tools[6]->render(getRen());
-        //cursor->render(getRen());
         character->setActive(false);
         for(int i = 0;i<5;i++)if(tools[i]->isActive())tools[i]->render(getRen());
-        /*for(auto face:tools)if(face->isActive())
-        face->render(getRen());*/
         }
  
         SDL_RenderPresent(getRen()); 
@@ -75,13 +85,29 @@ class MyGame:public Game {
           if (event.type==SDL_KEYDOWN){
             if (event.key.keysym.sym==SDLK_ESCAPE) running=false;
             if (event.key.keysym.sym==SDLK_w) {if(tools[6]->isActive()) tools[6]->sety(-10); 
-              else character->sety(-10);}
+              else {
+                character->sety(-10);
+                Mix_PlayChannel(-1, wave, 0);
+              }
+            }
             if (event.key.keysym.sym==SDLK_s) {if(tools[6]->isActive()) tools[6]->sety(10); 
-              else character->sety(10);}
+              else {
+                character->sety(10);
+                Mix_PlayChannel(-1, wave, 0);
+              }
+            }
             if (event.key.keysym.sym==SDLK_a) {if(tools[6]->isActive())tools[6]->setx(-10); 
-              else character->setx(-10);}
+              else {
+                character->setx(-10);
+                Mix_PlayChannel(-1, wave, 0);
+              }
+            }
             if (event.key.keysym.sym==SDLK_d) {if(tools[6]->isActive())tools[6]->setx(10); 
-              else character->setx(10);}
+              else {
+                character->setx(10);
+                Mix_PlayChannel(-1, wave, 0);
+              }
+            }
             if (event.key.keysym.sym==SDLK_r) which = 1;//repair
             if (event.key.keysym.sym==SDLK_b) which = 2;//bench
             if (event.key.keysym.sym==SDLK_c) which = 3;//Cabinet
@@ -93,6 +119,8 @@ class MyGame:public Game {
                 {
                   if(tools[i]->isActive())
                   tools[i]->setActive(false);
+                  Mix_PlayChannel(-1, grab, 0);
+
                 }
               }
               }
@@ -103,21 +131,17 @@ class MyGame:public Game {
           }
         }
 
-        /*check = 0;
-
-        for(auto face:tools) {
-          if(!face->isActive()) check++;
-        }
-        if(check==5) running = false;*/
     }
     ~MyGame(){
-      for(auto face:tools) delete face;
+      Mix_FreeChunk(wave);
+      Mix_FreeChunk(grab);
+      for(auto tool:tools) delete tool;
       delete back;
       delete repair;
       delete cabinet;
       delete character;
-     // delete cursor;
-      //delete computer;
+      SDL_FreeSurface(surfaceMessage);
+      SDL_DestroyTexture(Message);
     }
 };
 

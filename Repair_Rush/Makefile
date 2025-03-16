@@ -6,8 +6,7 @@ HEADERSRCS=Tile Sprite MediaManager Game
 HEADERS=$(foreach item,$(HEADERSRCS),$(item).h)
 CFLAGS=-g 
 SDLCFLAGS=-I/usr/include/SDL2 -D_REENTRANT
-SDLLIBS=-lSDL2
-
+SDLLIBS=-lSDL2 -lSDL2_mixer -lSDL2_ttf
 
 run: ${EXE}
 	./${EXE}
