@@ -1,22 +1,15 @@
 # CSCI345-RepairShop
+Based on overcooked. can press r for repair shop c for tool cabinet and b for benchtop (which will be where the client will come in)
+move character or hand cursor with wasd and select tools with space bar
 
 ## Details
-| Computer repair shop. Make it "gamy", but keep some realism. Main camera/level will be workbench with tools |
+Computer repair shop. Make it "gamy", but keep some realism. Main camera/level will be workbench with tools
 
-## Work TBD
-
-### Make the workbench Background
-### Get a character
-### Be able to interact with the workshop
-#### WASD
-#### Enter to select tool
-#### Hand as Cursor
-#### Little Animation and tool name
-### Basic Tools
-#### Thermal paste
-#### Screwdriver
-#### Soldering Iron
-#### Compressed air
-#### Tweezers
-
+## To do List
+-Add sound files
+-Add font files
+-Add a client (will have a speech bubble to ask what they need done
+-Update graphics
+-Add animations to characters walking
+-Add a character select menu
 
