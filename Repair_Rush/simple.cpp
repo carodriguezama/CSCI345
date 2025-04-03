@@ -3,11 +3,11 @@
 #include <vector>
 #include <fstream>
 #include "SDL.h"
-#include "SDL_mixer.h"
-#include "SDL_ttf.h"
 #include "Game.h"
 #include "Tile.h"
 #include "Sprite.h"
+#include "Sound.h"
+#include "Text.h"
 // #include "Animation.h"
  
 using namespace std;
@@ -17,22 +17,14 @@ class MyGame:public Game {
     int check, xpos, ypos;
     Sprite *character, *computer;
     vector<Sprite *> tools;
-    Mix_Chunk *wave,*grab;
-    TTF_Font* Sans;
-    SDL_Texture* Message;
-    SDL_Surface* surfaceMessage;
-    SDL_Rect Message_rect;
+    Sound *wave,*grab;
+    Text *text;
     string tool;
     int which;
     Tile *back, *repair, *cabinet, *intro;
   public:
     MyGame(int level=1):Game(){
         which = 0;
-        Sans = TTF_OpenFont("./Fonts/font.ttf", 50);
-        Message_rect.x = 500;  //controls the rect's x coordinate 
-        Message_rect.y = 200; // controls the rect's y coordinte
-        Message_rect.w = 300; // controls the width of the rect
-        Message_rect.h = 300; // controls the height of the rect
         character = new Sprite(getMM(),"./Images/Character/Character.bmp",250,100);//Have three characters maybe be able to switch characters?
         ifstream in("./game_textFiles/loadtools.txt");
         while(!in.eof()) {
@@ -43,14 +35,10 @@ class MyGame:public Game {
         repair = new Tile(getMM(),"./Images/Background/Repair_Shop.bmp");
         cabinet = new Tile(getMM(),"./Images/Background/Desktop.bmp");
         intro = new Tile(getMM(),"./Images/Background/Cover.bmp");
-
+        wave = new Sound();
+        grab = new Sound("./Sounds/grab.wav");
+        text = new Text(getRen(),"hello");
         dt=.01; 
-        SDL_Color White = {0, 0, 0};
-        surfaceMessage =
-        TTF_RenderText_Solid(Sans, "Press R to start", White); 
-        wave = Mix_LoadWAV("./Sounds/footstep.wav");
-        grab = Mix_LoadWAV("./Sounds/grab.wav");
-        Message = SDL_CreateTextureFromSurface(getRen(), surfaceMessage);
 
     }
     void loop() {
@@ -58,7 +46,7 @@ class MyGame:public Game {
         character->loop(dt);
         if(which==0) {
           intro->render(getRen());
-          SDL_RenderCopy(getRen(), Message, NULL, &Message_rect);
+          text->display();
         }
         else if(which==1) {
         character->setActive(true);
@@ -86,26 +74,26 @@ class MyGame:public Game {
             if (event.key.keysym.sym==SDLK_ESCAPE) running=false;
             if (event.key.keysym.sym==SDLK_w) {if(tools[6]->isActive()) tools[6]->sety(-10); 
               else {
-                character->sety(-10);
-                Mix_PlayChannel(-1, wave, 0);
+               character->sety(-10);
+               wave->play();
               }
             }
             if (event.key.keysym.sym==SDLK_s) {if(tools[6]->isActive()) tools[6]->sety(10); 
               else {
                 character->sety(10);
-                Mix_PlayChannel(-1, wave, 0);
+                wave->play();
               }
             }
             if (event.key.keysym.sym==SDLK_a) {if(tools[6]->isActive())tools[6]->setx(-10); 
               else {
                 character->setx(-10);
-                Mix_PlayChannel(-1, wave, 0);
+                wave->play();
               }
             }
             if (event.key.keysym.sym==SDLK_d) {if(tools[6]->isActive())tools[6]->setx(10); 
               else {
                 character->setx(10);
-                Mix_PlayChannel(-1, wave, 0);
+                wave->play();
               }
             }
             if (event.key.keysym.sym==SDLK_r) which = 1;//repair
@@ -119,8 +107,7 @@ class MyGame:public Game {
                 {
                   if(tools[i]->isActive())
                   tools[i]->setActive(false);
-                  Mix_PlayChannel(-1, grab, 0);
-
+                  grab->play();
                 }
               }
               }
@@ -133,15 +120,14 @@ class MyGame:public Game {
 
     }
     ~MyGame(){
-      Mix_FreeChunk(wave);
-      Mix_FreeChunk(grab);
+      wave->free();
+      grab->free();
       for(auto tool:tools) delete tool;
       delete back;
       delete repair;
       delete cabinet;
       delete character;
-      SDL_FreeSurface(surfaceMessage);
-      SDL_DestroyTexture(Message);
+      text->destroy();
     }
 };
 
