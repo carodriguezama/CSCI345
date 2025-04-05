@@ -1,3 +1,3 @@
-Character.bmp 250 100
-Character2.bmp 250 100
-Character3.bmp 250 100
+./Images/Character/Character.bmp 50 250
+./Images/Character/Character2.bmp 300 250
+./Images/Character/Character3.bmp 550 250

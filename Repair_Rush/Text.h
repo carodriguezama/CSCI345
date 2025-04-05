@@ -14,17 +14,17 @@ class Text{
     protected:
         bool ready;
     public:
-        Text(SDL_Renderer *ren, string word="Press R to start",string fname="./Fonts/font.ttf", int rectx = 500, int recty = 200,
-        int mrectx = 300, int mrecty = 300){
+        Text(SDL_Renderer *ren, string word="Press R to start",string fname="./Fonts/font.ttf", int rectx = 500, int recty = 50,
+        int mrectx = 250, int mrecty = 200){
         ready=false;
         renderer = ren;
-        font = TTF_OpenFont(fname.c_str(), 50);
+        font = TTF_OpenFont(fname.c_str(), 20);
         Message_rect.x = rectx;  //controls the rect's x coordinate 
         Message_rect.y = recty; // controls the rect's y coordinte
         Message_rect.w = mrectx; // controls the width of the rect
         Message_rect.h = mrecty; // controls the height of the rect
         ready=true;
-        SDL_Color White = {0, 0, 0};
+        SDL_Color White = {255, 255, 255};
         surfaceMessage =
         TTF_RenderText_Solid(font, word.c_str(), White);
         Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);

@@ -2,7 +2,7 @@ PROJ=simple
 EXE=${PROJ}.exe
 SRC=${PROJ}.cpp
 
-HEADERSRCS=Tile Sprite MediaManager Game
+HEADERSRCS=Tile Sprite MediaManager Game Sound Text
 HEADERS=$(foreach item,$(HEADERSRCS),$(item).h)
 CFLAGS=-g 
 SDLCFLAGS=-I/usr/include/SDL2 -D_REENTRANT
