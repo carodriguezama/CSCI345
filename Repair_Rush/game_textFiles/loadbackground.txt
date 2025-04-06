@@ -1,4 +1,5 @@
-Background2.bmp
-Repair_Shop.bmp
-Desktop.bmp
-Cover.bmp
+./Images/Background/Cover.bmp
+./Images/Background/Select.bmp
+./Images/Background/Repair_Shop.bmp
+./Images/Background/Checkout.bmp
+./Images/Background/background2.bmp
