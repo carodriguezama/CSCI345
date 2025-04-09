@@ -47,7 +47,7 @@ class MyGame:public Game {
           background.push_back(new Tile(getMM(),tool));
         }
         bin.close();
-        wave = new Sound("./Sounds/footsteo.wav");
+        wave = new Sound("./Sounds/footstep.wav");
         grab = new Sound("./Sounds/grab.wav");
         text = new Text(getRen(),"PRESS ENTER");
         help = new Text(getRen(),"please help me my computer is overheating",25,450,50,400,300);
