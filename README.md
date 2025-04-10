@@ -26,8 +26,8 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/RepairRush.git
-   cd RepairRush
+   git clone https://github.com/yourusername/CSCI345.git
+   cd CSCI345\Repair_Rush\
    ```
 
 2. Make sure you have SDL2, SDL_ttf, and SDL_mixer installed. On Ubuntu:
