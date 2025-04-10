@@ -75,3 +75,10 @@
 ![Gameplay Screenshot](Screen_Shots/Repair_Rush_Cabinet_Screen.png)
 
 ---
+
+## To do
+- **Add animations**
+- **Update Sounds**
+- **Added a bubble box around speech**
+-  **Organize Code**
+
