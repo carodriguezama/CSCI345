@@ -62,13 +62,16 @@
 
 ## Screenshots
 
-*(You can add images here to show the game in action)*  
-![Gameplay Screenshot](assets/screenshots/repair_rush_1.png)
+*Loading Screen*  
+![Gameplay Screenshot](Screen_Shots/Repair_Rush_Loading_Screen.png)
 
----
+*Character Select*  
+![Gameplay Screenshot](Screen_Shots/Repair_Rush_Select_Screen.png)
 
-## 📄 License
+*Client*  
+![Gameplay Screenshot](Screen_Shots/Repair_Rush_Client_Screen.png)
 
-Include the license you're using here (MIT, GPL, etc.).
+*Tool Cabinet*  
+![Gameplay Screenshot](Screen_Shots/Repair_Rush_Cabinet_Screen.png)
 
 ---
