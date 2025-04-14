@@ -8,9 +8,11 @@
 #include "Sprite.h"
 #include "Sound.h"
 #include "Text.h"
+
 // #include "Animation.h"
  
 using namespace std;
+Mix_Music* music = nullptr; // Background music track
 
 class MyGame:public Game {
     float dt;
@@ -51,7 +53,18 @@ class MyGame:public Game {
         grab = new Sound("./Sounds/grab.wav");
         text = new Text(getRen(),"PRESS ENTER");
         help = new Text(getRen(),"please help me my computer is overheating",25,450,50,400,300);
-        dt=.01; 
+        dt=.01;
+        // Load and play background music -c
+        music = Mix_LoadMUS("./Sounds/Green Meadows.ogg");
+        if (!music) {
+          cerr << "Failed to load music: " << Mix_GetError() << endl;
+          } else {
+            Mix_PlayMusic(music, -1); // -1 = loop forever
+            Mix_VolumeMusic(MIX_MAX_VOLUME / 2); // Play at 50% volume
+            //I researched how to use SDL_mixer and Mix_Music through tutorials on yt soo
+            // mb if there is a easier way - c
+}
+ 
 
     }
     void loop() {
@@ -155,6 +168,10 @@ class MyGame:public Game {
       for(auto tool:background) delete tool;
       text->destroy();
       help->destroy();
+      // - c
+      Mix_HaltMusic();       // Stop any playing music
+      Mix_FreeMusic(music);  // Clean up
+
     }
 };
 
