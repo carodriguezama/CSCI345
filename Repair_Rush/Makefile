@@ -1,19 +1,19 @@
 PROJ=simple
-EXE=${PROJ}.exe
-SRC=${PROJ}.cpp
+EXE=${PROJ}
+SRC=${PROJ}.cpp ControlScreen.cpp
 
-HEADERSRCS=Tile Sprite MediaManager Game Sound Text
+HEADERSRCS=Tile Sprite MediaManager Game
 HEADERS=$(foreach item,$(HEADERSRCS),$(item).h)
-CFLAGS=-g 
-SDLCFLAGS=-I/usr/include/SDL2 -D_REENTRANT
-SDLLIBS=-lSDL2 -lSDL2_mixer -lSDL2_ttf
+
+CFLAGS=-g
+SDLCFLAGS=$(shell sdl2-config --cflags)
+SDLLIBS=$(shell sdl2-config --libs) -lSDL2_mixer -lSDL2_ttf
 
 run: ${EXE}
 	./${EXE}
 
-${EXE}:${SRC} ${OBJS} ${HEADERS}
-	g++  ${SDLCFLAGS} ${CFLAGS} $<  -o $@ ${OBJS} ${SDLLIBS} 
+${EXE}: ${SRC} ${HEADERS}
+	g++ ${SDLCFLAGS} ${CFLAGS} ${SRC} -o $@ ${SDLLIBS}
 
 clean:
-	rm ${EXE} ${OBJS}
-
+	rm -f ${EXE}

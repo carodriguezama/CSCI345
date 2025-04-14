@@ -8,9 +8,11 @@
 #include "Sprite.h"
 #include "Sound.h"
 #include "Text.h"
+#include "ControlScreen.h" // -c
 // #include "Animation.h"
  
 using namespace std;
+Mix_Music* music = nullptr; // Background music track
 
 class MyGame:public Game {
     float dt;
@@ -22,10 +24,20 @@ class MyGame:public Game {
     Text *text, *help;
     string tool;
     bool start;
+    TTF_Font* font; // we'll use this for showing text in the controls screen -c
     int which;
   public:
     MyGame(int level=1):Game(){
         which = 0;
+        //--- c
+        help = new Text(getRen(),"please help me my computer is overheating",25,450,50,400,300);
+        // load a font for the controls screen - c
+        font = TTF_OpenFont("./Fonts/font.ttf", 28);
+        if (!font) 
+        {
+          cerr << "Failed to load font: " << TTF_GetError() << endl;
+          }
+          // --- c end
         start = true;
         ifstream in("./game_textFiles/loadtools.txt");
         while(!in.eof()) {
@@ -51,7 +63,18 @@ class MyGame:public Game {
         grab = new Sound("./Sounds/grab.wav");
         text = new Text(getRen(),"PRESS ENTER");
         help = new Text(getRen(),"please help me my computer is overheating",25,450,50,400,300);
-        dt=.01; 
+        dt=.01;
+        // Load and play background music -c
+        music = Mix_LoadMUS("./Sounds/Green Meadows.ogg");
+        if (!music) {
+          cerr << "Failed to load music: " << Mix_GetError() << endl;
+          } else {
+            Mix_PlayMusic(music, -1); // -1 = loop forever
+            Mix_VolumeMusic(MIX_MAX_VOLUME / 2); // Play at 50% volume
+            //I researched how to use SDL_mixer and Mix_Music through tutorials on yt soo
+            // mb if there is a easier way - c
+}
+ 
 
     }
     void loop() {
@@ -107,6 +130,12 @@ class MyGame:public Game {
             if (event.key.keysym.sym==SDLK_r) which = 3;//repair
             if (event.key.keysym.sym==SDLK_b) which = 2;//client
             if (event.key.keysym.sym==SDLK_c) which = 4;//tool select
+            // ---- c
+            if (event.key.keysym.sym == SDLK_h) 
+            {
+              // show the controls/help screen when H is pressed
+              showControlsScreen(getRen(), font);
+              } // ---c end
             if (event.key.keysym.sym==SDLK_ESCAPE) running=false;
             if (event.key.keysym.sym==SDLK_w) {if(tools[6]->isActive()) tools[6]->sety(-10); 
               else {
@@ -155,6 +184,12 @@ class MyGame:public Game {
       for(auto tool:background) delete tool;
       text->destroy();
       help->destroy();
+      // - c
+      Mix_HaltMusic();       // Stop any playing music
+      Mix_FreeMusic(music);  // Clean up
+      TTF_CloseFont(font); // free the font when the game ends
+      // - c end
+
     }
 };
 
