@@ -1,6 +1,6 @@
 PROJ=simple
 EXE=${PROJ}
-SRC=${PROJ}.cpp
+SRC=${PROJ}.cpp ControlScreen.cpp
 
 HEADERSRCS=Tile Sprite MediaManager Game
 HEADERS=$(foreach item,$(HEADERSRCS),$(item).h)
@@ -13,7 +13,7 @@ run: ${EXE}
 	./${EXE}
 
 ${EXE}: ${SRC} ${HEADERS}
-	g++ ${SDLCFLAGS} ${CFLAGS} $< -o $@ ${SDLLIBS}
+	g++ ${SDLCFLAGS} ${CFLAGS} ${SRC} -o $@ ${SDLLIBS}
 
 clean:
 	rm -f ${EXE}

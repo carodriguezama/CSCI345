@@ -8,7 +8,7 @@
 #include "Sprite.h"
 #include "Sound.h"
 #include "Text.h"
-
+#include "ControlScreen.h" // -c
 // #include "Animation.h"
  
 using namespace std;
@@ -24,10 +24,20 @@ class MyGame:public Game {
     Text *text, *help;
     string tool;
     bool start;
+    TTF_Font* font; // we'll use this for showing text in the controls screen -c
     int which;
   public:
     MyGame(int level=1):Game(){
         which = 0;
+        //--- c
+        help = new Text(getRen(),"please help me my computer is overheating",25,450,50,400,300);
+        // load a font for the controls screen - c
+        font = TTF_OpenFont("./Fonts/font.ttf", 28);
+        if (!font) 
+        {
+          cerr << "Failed to load font: " << TTF_GetError() << endl;
+          }
+          // --- c end
         start = true;
         ifstream in("./game_textFiles/loadtools.txt");
         while(!in.eof()) {
@@ -120,6 +130,12 @@ class MyGame:public Game {
             if (event.key.keysym.sym==SDLK_r) which = 3;//repair
             if (event.key.keysym.sym==SDLK_b) which = 2;//client
             if (event.key.keysym.sym==SDLK_c) which = 4;//tool select
+            // ---- c
+            if (event.key.keysym.sym == SDLK_h) 
+            {
+              // show the controls/help screen when H is pressed
+              showControlsScreen(getRen(), font);
+              } // ---c end
             if (event.key.keysym.sym==SDLK_ESCAPE) running=false;
             if (event.key.keysym.sym==SDLK_w) {if(tools[6]->isActive()) tools[6]->sety(-10); 
               else {
@@ -171,6 +187,8 @@ class MyGame:public Game {
       // - c
       Mix_HaltMusic();       // Stop any playing music
       Mix_FreeMusic(music);  // Clean up
+      TTF_CloseFont(font); // free the font when the game ends
+      // - c end
 
     }
 };
