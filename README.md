@@ -45,6 +45,7 @@
 ## Art & Sound
 
 - Art and music assets are sourced from free-to-use websites and AI including Chatgpt and Google Gemini. (Consider crediting artists here if applicable.)
+- “Green Meadows”. Music by Marcelo Fernandez (http://www.marcelofernandezmusic.com). Licensed under Creative Commons Attribution 4.0 International (http://creativecommons.org/licenses/by/4.0/).
 
 ---
 
