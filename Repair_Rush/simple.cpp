@@ -3,22 +3,18 @@
 #include "Sound.h"
 #include "Sprite.h"
 #include "Text.h"
-<<<<<<< HEAD
 #include "ControlScreen.h" // -c
-=======
 #include "Tile.h"
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
 
->>>>>>> bb107a6 (Update game files and add new sprite assets)
 // #include "Animation.h"
 
 using namespace std;
 Mix_Music* music = nullptr; // Background music track
 
-<<<<<<< HEAD
 class MyGame:public Game {
     float dt;
     int check, xpos, ypos;
@@ -44,27 +40,29 @@ class MyGame:public Game {
           }
           // --- c end
         start = true;
+
         ifstream in("./game_textFiles/loadtools.txt");
         while(!in.eof()) {
           in>>tool>>xpos>>ypos;
           tools.push_back(new Sprite(getMM(),tool,xpos,ypos));
         }
         in.close();
+
         ifstream cin("./game_textFiles/Character.txt");
         while(!cin.eof()) {
           cin>>tool>>xpos>>ypos;
           characters.push_back(new Sprite(getMM(),tool,xpos,ypos));
         }
         cin.close();
-        in.close();
+
         ifstream bin("./game_textFiles/loadbackground.txt");
         while(!bin.eof()) {
           bin>>tool;
-          cout<<tool<<endl;
           background.push_back(new Tile(getMM(),tool));
         }
         bin.close();
-        wave = new Sound("./Sounds/footstep.wav");
+        
+        wave = new Sound("./Sounds/footsteo.wav");
         grab = new Sound("./Sounds/grab.wav");
         text = new Text(getRen(),"PRESS ENTER");
         help = new Text(getRen(),"please help me my computer is overheating",25,450,50,400,300);
@@ -78,56 +76,8 @@ class MyGame:public Game {
             Mix_VolumeMusic(MIX_MAX_VOLUME / 2); // Play at 50% volume
             //I researched how to use SDL_mixer and Mix_Music through tutorials on yt soo
             // mb if there is a easier way - c
-}
- 
-=======
-class MyGame : public Game {
-  float dt;
-  int check, xpos, ypos;
-  vector<Sprite *> tools;
-  vector<Sprite *> characters;
-  vector<Tile *> background;
-  Sound *wave, *grab;
-  Text *text, *help;
-  string tool;
-  bool start;
-  int which;
->>>>>>> bb107a6 (Update game files and add new sprite assets)
-
-public:
-  MyGame(int level = 1) : Game() {
-    which = 0;
-    start = true;
-
-    ifstream in("./game_textFiles/loadtools.txt");
-    while (!in.eof()) {
-      in >> tool >> xpos >> ypos;
-      tools.push_back(new Sprite(getMM(), tool, xpos, ypos));
+      }   
     }
-    in.close();
-
-    ifstream cin("./game_textFiles/Character.txt");
-    while (!cin.eof()) {
-      cin >> tool >> xpos >> ypos;
-      characters.push_back(new Sprite(getMM(), tool, xpos, ypos));
-    }
-    cin.close();
-
-    ifstream bin("./game_textFiles/loadbackground.txt");
-    while (!bin.eof()) {
-      bin >> tool;
-      cout << tool << endl;
-      background.push_back(new Tile(getMM(), tool));
-    }
-    bin.close();
-
-    wave = new Sound("./Sounds/footsteo.wav");
-    grab = new Sound("./Sounds/grab.wav");
-    text = new Text(getRen(), "PRESS ENTER");
-    help = new Text(getRen(), "please help me my computer is overheating", 25,
-                    450, 50, 400, 300);
-    dt = .01;
-  }
 
   void loop() {
     for (auto tool : tools)
@@ -160,44 +110,11 @@ public:
           tools[i]->render(getRen());
       tools[6]->render(getRen());
     }
-
-    SDL_RenderPresent(getRen());
-    SDL_Delay(1000.0 * dt);
-
-    SDL_Event event;
-    if (SDL_PollEvent(&event)) {
-      if (event.type == SDL_KEYDOWN) {
-        if (event.key.keysym.sym == SDLK_1) {
-          characters[1]->setActive(false);
-          characters[2]->setActive(false);
-          which = 2;
-        }
-        if (event.key.keysym.sym == SDLK_2) {
-          characters[0]->setActive(false);
-          characters[2]->setActive(false);
-          which = 2;
-        }
-        if (event.key.keysym.sym == SDLK_3) {
-          characters[0]->setActive(false);
-          characters[1]->setActive(false);
-          which = 2;
-        }
-<<<<<<< HEAD
-        else if(which==3) {
-        background[2]->render(getRen());
-        for(int i = 0;i<3;i++)if(characters[i]->isActive()) characters[i]->render(getRen());
-        tools[6]->setActive(false);
-        }
-        else {
-        tools[6]->setActive(true);
-        background[4]->render(getRen());
-        for(int i = 0;i<5;i++)if(tools[i]->isActive())tools[i]->render(getRen());
-        tools[6]->render(getRen());
-        }
+    
+      SDL_RenderPresent(getRen());
+      SDL_Delay(1000.0 * dt);
+      SDL_Event event;
  
-        SDL_RenderPresent(getRen()); 
-        SDL_Delay(1000.0*dt);
-        SDL_Event event;
         if (SDL_PollEvent(&event)){
           if (event.type==SDL_KEYDOWN){
             if (event.key.keysym.sym==SDLK_1) {
@@ -226,30 +143,7 @@ public:
               showControlsScreen(getRen(), font);
               } // ---c end
             if (event.key.keysym.sym==SDLK_ESCAPE) running=false;
-            if (event.key.keysym.sym==SDLK_w) {if(tools[6]->isActive()) tools[6]->sety(-10); 
-              else {
-               for(int i = 0;i<3;i++)if(characters[i]->isActive()) characters[i]->sety(-10);
-               wave->play();
-              }
-            }
-            if (event.key.keysym.sym==SDLK_s) {if(tools[6]->isActive()) tools[6]->sety(10); 
-              else {
-                for(int i = 0;i<3;i++)if(characters[i]->isActive()) characters[i]->sety(10);
-                wave->play();
-              }
-            }
-            if (event.key.keysym.sym==SDLK_a) {if(tools[6]->isActive())tools[6]->setx(-10); 
-              else {
-                for(int i = 0;i<3;i++)if(characters[i]->isActive()) characters[i]->setx(-10);
-                wave->play();
-              }
-            }
-            if (event.key.keysym.sym==SDLK_d) {if(tools[6]->isActive())tools[6]->setx(10); 
-              else {
-                for(int i = 0;i<3;i++)if(characters[i]->isActive()) characters[i]->setx(10);
-                wave->play();
-              }
-            }
+
             if (event.key.keysym.sym==SDLK_SPACE) {
               for(int i = 0;i<5;i++){
               if(tools[i]->isActive()) {
@@ -257,34 +151,15 @@ public:
                   grab->play();
               }
               }
-=======
-        if (event.key.keysym.sym == SDLK_RETURN)
-          which = 1;
-        if (event.key.keysym.sym == SDLK_r)
-          which = 3;
-        if (event.key.keysym.sym == SDLK_b)
-          which = 2;
-        if (event.key.keysym.sym == SDLK_c)
-          which = 4;
-        if (event.key.keysym.sym == SDLK_ESCAPE)
-          running = false;
-
-        //************ Moving main character 0  ******************* */
-        if (event.key.keysym.sym == SDLK_w) {
-          int character = 0;
-          if (tools[6]->isActive())
-            tools[6]->sety(-10);
-          else {
-
-            if (characters[character]->isActive()) {
-              characters[character]->sety(-10);
-              characters[character]->walkingVertical(true);
->>>>>>> bb107a6 (Update game files and add new sprite assets)
             }
-            wave->play();
+
+           if (event.key.keysym.sym==SDLK_w) {if(tools[6]->isActive()) tools[6]->sety(-10); 
+            else {
+             for(int i = 0;i<3;i++)if(characters[i]->isActive()) characters[i]->sety(-10);
+             wave->play();
+            }
           }
-        }
-        if (event.key.keysym.sym == SDLK_s) {
+          if (event.key.keysym.sym == SDLK_s) {
           int character = 0;
 
           if (tools[6]->isActive())
@@ -327,6 +202,8 @@ public:
             wave->play();
           }
         }
+            
+
         //**********************************  Moving character 1
         //*****************************  */
         if (event.key.keysym.sym == SDLK_UP) {
@@ -377,28 +254,19 @@ public:
             if (characters[character]->isActive()) {
               characters[character]->setx(10);
               characters[character]->setDirection(false); // face right
-            }
-            wave->play();
-          }
-        }
-        //*****************************************************************************
-        //*/
-
-        if (event.key.keysym.sym == SDLK_SPACE) {
-          for (int i = 0; i < 5; i++) {
-            if (tools[i]->isActive()) {
-              tools[i]->setActive(!tools[6]->isTouching(*tools[i]));
-              grab->play();
-            }
+              wave->play();
           }
         }
       }
+    }
+
       if (event.type == SDL_WINDOWEVENT) {
         if (event.window.event == SDL_WINDOWEVENT_CLOSE)
           running = false;
       }
     }
-<<<<<<< HEAD
+  }
+    
     ~MyGame(){
       wave->free();
       grab->free();
@@ -412,24 +280,8 @@ public:
       Mix_FreeMusic(music);  // Clean up
       TTF_CloseFont(font); // free the font when the game ends
       // - c end
-
     }
-=======
-  }
 
-  ~MyGame() {
-    wave->free();
-    grab->free();
-    for (auto tool : tools)
-      delete tool;
-    for (auto tool : characters)
-      delete tool;
-    for (auto tool : background)
-      delete tool;
-    text->destroy();
-    help->destroy();
-  }
->>>>>>> bb107a6 (Update game files and add new sprite assets)
 };
 
 int main(void) {

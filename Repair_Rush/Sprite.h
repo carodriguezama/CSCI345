@@ -2,6 +2,7 @@
 #include "MediaManager.h"
 #include "SDL.h"
 #include "Tile.h"
+#include <vector>
 
 using namespace std;
 
