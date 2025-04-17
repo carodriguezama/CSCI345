@@ -31,9 +31,8 @@ class MyGame:public Game {
     MyGame(int level=1):Game(){
         which = 0;
         //--- c
-        help = new Text(getRen(),"please help me my computer is overheating",25,450,50,400,300);
         // load a font for the controls screen - c
-        font = TTF_OpenFont("./Fonts/font.ttf", 28);
+        font = TTF_OpenFont("./Fonts/BungeeSpice-Regular.ttf",28);
         if (!font) 
         {
           cerr << "Failed to load font: " << TTF_GetError() << endl;
@@ -64,8 +63,8 @@ class MyGame:public Game {
         
         wave = new Sound("./Sounds/footsteo.wav");
         grab = new Sound("./Sounds/grab.wav");
-        text = new Text(getRen(),"PRESS ENTER");
-        help = new Text(getRen(),"please help me my computer is overheating",25,450,50,400,300);
+        text = new Text(getRen(),"PRESS ENTER",45,450,300,false);
+        help = new Text(getRen(),"please help me my computer is overheating",12,460,150);// 
         dt=.01;
         // Load and play background music -c
         music = Mix_LoadMUS("./Sounds/Green Meadows.ogg");

@@ -14,21 +14,21 @@ class Text{
     protected:
         bool ready;
     public:
-        Text(SDL_Renderer *ren, string word="Press R to start", int fontsize = 40,
-            int rectx = 500, int recty = 50,int mrectx = 300,
-            int mrecty = 200, string fname="./Fonts/font.ttf"){
+        Text(SDL_Renderer *ren, string word="Press R to start", int fontsize = 15,
+            int rectx = 500, int recty = 50, bool white = true, string fname="./Fonts/BungeeSpice-Regular.ttf"){
         ready=false;
         renderer = ren;
         font = TTF_OpenFont(fname.c_str(), fontsize);
+        SDL_Color Color = {0, 0, 0};
+        if(white) SDL_Color Color = {255, 255, 255};
+        surfaceMessage =
+        TTF_RenderText_Solid(font, word.c_str(), Color);
         Message_rect.x = rectx;  //controls the rect's x coordinate 
         Message_rect.y = recty; // controls the rect's y coordinte
-        Message_rect.w = mrectx; // controls the width of the rect
-        Message_rect.h = mrecty; // controls the height of the rect
+        Message_rect.w = surfaceMessage->w; // controls the width of the rect
+        Message_rect.h = surfaceMessage->h; // controls the height of the rectsurfaceMessage
+        
         ready=true;
-        SDL_Color White = {0, 0, 0};
-        surfaceMessage =
-        //TTF_RenderText_Solid(font, word.c_str(), White);
-        TTF_RenderText_Blended_Wrapped(font, word.c_str(), White, 150);
         Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
         }
         void display() {SDL_RenderCopy(renderer, Message, NULL, &Message_rect);}
