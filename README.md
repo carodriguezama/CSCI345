@@ -75,6 +75,8 @@
 *Tool Cabinet*  
 ![Gameplay Screenshot](Screen_Shots/Repair_Rush_Cabinet_Screen.png)
 
+*Control Screen*  
+![Gameplay Screenshot](Screen_Shots/Repair_Rush_Controls_Screen.png)
 ---
 
 ## To do
