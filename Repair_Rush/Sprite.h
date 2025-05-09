@@ -21,6 +21,8 @@ class Sprite : public Tile {
   bool isAnimated = false;
 
 public:
+  int getX() const { return static_cast<int>(x); }
+  int getY() const { return static_cast<int>(y); }
   bool isTouching(Sprite &tool) {
     // function to check if the user has selected the tool
     if (this == &tool)
