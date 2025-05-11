@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
     Uint32 solderRequiredTime = 0;
     bool mouseHeld = false;
     bool quit = false;
+    bool solderComp = false;
     SDL_Event e;
 
     while (!quit) {
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]) {
                     case SDLK_a: ironRect.x -= 5; break;
                     case SDLK_d: ironRect.x += 5; break;
                     case SDLK_e:
-                        if (gameState == GameState::MAIN_SCENE && isNear(ironRect, signRect)) {
+                        if (gameState == GameState::MAIN_SCENE && isNear(ironRect, signRect) && !solderComp) {
                             std::cout << "Mini-game starts!\n";
                             gameState = GameState::MINI_GAME;
                             ironRect = { 375, 275, IRON_WIDTH, IRON_HEIGHT };
@@ -97,7 +98,9 @@ int main(int argc, char* argv[]) {
 
         if (gameState == GameState::MAIN_SCENE) {
             SDL_RenderCopy(renderer, repairShopTex, nullptr, nullptr);
-            SDL_RenderCopy(renderer, signTex, nullptr, &signRect);
+            if (!solderComp) {
+                SDL_RenderCopy(renderer, signTex, nullptr, &signRect);
+            }
         } else if (gameState == GameState::MINI_GAME) {
             SDL_RenderCopy(renderer, motherboardTex, nullptr, nullptr);
 
@@ -124,11 +127,9 @@ int main(int argc, char* argv[]) {
                             progress = 1.0f;
                             solderingActive = false;
                             std::cout << "Soldering complete!\n";
-                            gameState = GameState::MAIN_SCENE;  // Exit mini-game after soldering
-                            SDL_RenderClear(renderer); // Clear screen
-                            SDL_RenderCopy(renderer, repairShopTex, nullptr, nullptr); // Show main screen
-                            SDL_RenderPresent(renderer);
-                            SDL_Delay(1000); // Delay before returning to main scene
+                            solderComp = true;
+                            gameState = GameState::MAIN_SCENE;
+                            SDL_Delay(1000);
                         }
 
                         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
