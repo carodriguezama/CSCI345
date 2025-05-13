@@ -7,9 +7,9 @@ SRC = $(PROJ).cpp
 
 # Compiler and Flags
 CXX = g++
-CXXFLAGS = -g -Wall
-SDLCFLAGS = -IC:/sdl2/include/SDL2 -D_REENTRANT
-SDLLIBS = -LC:/sdl2/lib -lSDL2main -lSDL2 -mconsole -fno-use-cxa-atexit
+CXXFLAGS = -std=c++11 -g -Wall
+SDLCFLAGS = -I/opt/homebrew/include -I/opt/homebrew/include/SDL2 -D_REENTRANT
+SDLLIBS =$(shell sdl2-config --libs) -lSDL2main -lSDL2 -mconsole -fno-use-cxa-atexit
 
 # Build Rules
 all: $(EXE)
