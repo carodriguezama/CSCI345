@@ -5,6 +5,7 @@
 #include "ServiceTable.h"
 #include "Sound.h"
 #include "Sprite.h"
+#include "MotherboardMinigame.h"
 #include "Text.h"
 #include "Tile.h"
 #include <fstream>
@@ -27,6 +28,7 @@ class MyGame : public Game {
   bool start;
   TTF_Font *font;
   int which;
+  int successfulJobs;
 
   ServiceTable *minigame;
 
@@ -176,6 +178,12 @@ public:
           which = 2;
         if (event.key.keysym.sym == SDLK_c)
           which = 4;
+
+        if (event.key.keysym.sym==SDLK_m) {
+          MotherboardMinigame mb(getRen(), getMM(), successfulJobs);
+          mb.run();
+        }
+        
         if (event.key.keysym.sym == SDLK_h) {
           showControlsScreen(getRen(), font);
         }
