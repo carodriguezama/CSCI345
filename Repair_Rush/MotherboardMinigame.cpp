@@ -19,7 +19,7 @@ MotherboardMinigame::MotherboardMinigame(SDL_Renderer* ren, MediaManager* media,
             part->setx(rand() % 600 + 100);
             part->sety(rand() % 400 + 100);
         }
-        for (auto& part : parts)
+        for (auto part : parts)
             locked[part] = false;
         font = TTF_OpenFont("./Fonts/BungeeSpice-Regular.ttf", 28);
 }
