@@ -186,7 +186,11 @@ public:
         }
         if (event.type == SDL_KEYDOWN) {
           if (event.key.keysym.sym == SDLK_e) {
+<<<<<<< HEAD
             SolderingGame solderingGame(getRen());
+=======
+            SolderingGame solderingGame(renderer);
+>>>>>>> 8b9c9f0e3f4463835401690be2ad6ac94b08cb52
             solderingGame.run();  // Starts the mini-game
            } 
         }
