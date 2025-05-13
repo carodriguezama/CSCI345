@@ -15,10 +15,6 @@ MotherboardMinigame::MotherboardMinigame(SDL_Renderer* ren, MediaManager* media,
         partName[parts[0]] = "CPU";
         partName[parts[1]] = "Thermal Paste";
         partName[parts[2]] = "Fan";
-        for (auto& part : parts){
-            part->setx(rand() % 600 + 100);
-            part->sety(rand() % 400 + 100);
-        }
         for (auto part : parts)
             locked[part] = false;
         font = TTF_OpenFont("./Fonts/BungeeSpice-Regular.ttf", 28);
