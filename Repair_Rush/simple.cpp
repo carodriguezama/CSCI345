@@ -5,16 +5,17 @@
 #include "Text.h"
 #include "ControlScreen.h" // -c
 #include "Tile.h"
+#include "MotherboardMinigame.h"
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
+#include <ctime>
 
 // #include "Animation.h"
 
 using namespace std;
 Mix_Music* music = nullptr; // Background music track
-
 class MyGame:public Game {
     float dt;
     int check, xpos, ypos;
@@ -27,9 +28,11 @@ class MyGame:public Game {
     bool start;
     TTF_Font* font; // we'll use this for showing text in the controls screen -c
     int which;
+    int successfulJobs;
   public:
     MyGame(int level=1):Game(){
         which = 0;
+        successfulJobs = 0;
         //--- c
         // load a font for the controls screen - c
         font = TTF_OpenFont("./Fonts/BungeeSpice-Regular.ttf",28);
@@ -135,6 +138,12 @@ class MyGame:public Game {
             if (event.key.keysym.sym==SDLK_r) which = 3;//repair
             if (event.key.keysym.sym==SDLK_b) which = 2;//client
             if (event.key.keysym.sym==SDLK_c) which = 4;//tool select
+
+
+            if (event.key.keysym.sym==SDLK_m) {
+            MotherboardMinigame mb(getRen(), getMM(), successfulJobs);
+            mb.run();
+            }
             // ---- c
             if (event.key.keysym.sym == SDLK_h) 
             {

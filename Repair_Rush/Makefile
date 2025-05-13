@@ -1,12 +1,12 @@
 PROJ=simple
 EXE=${PROJ}
-SRC=${PROJ}.cpp ControlScreen.cpp
+SRC=${PROJ}.cpp ControlScreen.cpp MotherboardMinigame.cpp
 
 HEADERSRCS=Tile Sprite MediaManager Game
 HEADERS=$(foreach item,$(HEADERSRCS),$(item).h)
 
 CFLAGS=-g
-SDLCFLAGS=$(shell sdl2-config --cflags)
+SDLCFLAGS=-I/opt/homebrew/include -I/opt/homebrew/include/SDL2 -D_REENTRANT
 SDLLIBS=$(shell sdl2-config --libs) -lSDL2_mixer -lSDL2_ttf
 
 run: ${EXE}
