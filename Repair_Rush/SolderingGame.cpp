@@ -1,30 +1,3 @@
-#include "SolderingGame.h"
-#include <cstdlib>
-#include <iostream>
-
-SolderingGame::SolderingGame(SDL_Renderer* ren, MediaManager* media, int &jobCounter)
-    : renderer(ren), mm(media), selected(nullptr), offsetX(0), offsetY(0), successfulJobs(jobCounter) {
-    
-    background = new Sprite(mm, "mbImg/motherboard.bmp", 0, 0);
-    background->rect.w = 800;
-    background->rect.h = 600;
-
-    parts.push_back(new Sprite(mm, "Images/Tools/Soldering_Iron.bmp"));
-
-    partName[parts[0]] = "Iron";
-
-
-    for (auto part : parts)
-        locked[part] = false;
-
-}
-
-SolderingGame::~SolderingGame() {
-    for (auto part : parts) delete part;
-    delete background;
-    if (font) TTF_CloseFont(font);
-}
-
 void SolderingGame::run() {
     bool running = true;
     SDL_Event event;
@@ -33,8 +6,19 @@ void SolderingGame::run() {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) return;
 
+            // Handle left mouse click (start drag or close mini-game)
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
                 int mx = event.button.x, my = event.button.y;
+
+                // Check if the click is within the area where the mini-game should be closed (e.g., the background)
+                if (mx >= 0 && mx <= 800 && my >= 0 && my <= 600) {
+                    // Close the mini-game and increment the job counter
+                    running = false;
+                    successfulJobs++;  // Increment job counter
+                    cout << "Total successful jobs: " << successfulJobs << endl;
+                }
+
+                // Check for part selection for dragging
                 for (auto part : parts) {
                     if (locked[part]) continue;
                     SDL_Rect r = part->rect;
@@ -47,17 +31,20 @@ void SolderingGame::run() {
                 }
             }
 
+            // Handle mouse motion to drag parts
             if (event.type == SDL_MOUSEMOTION && selected != nullptr) {
                 int mx = event.motion.x, my = event.motion.y;
                 selected->rect.x = mx - offsetX;
                 selected->rect.y = my - offsetY;
             }
 
+            // Handle mouse release (place part)
             if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
                 if (selected && !locked[selected]) {
                     int x = selected->rect.x;
                     int y = selected->rect.y;
 
+                    // Example placement check (for the Iron part)
                     if (abs(x - 200) < 20 && abs(y - 150) < 20) {
                         selected->rect.x = 200;
                         selected->rect.y = 150;
@@ -69,6 +56,7 @@ void SolderingGame::run() {
                 selected = nullptr;
             }
 
+            // Close mini-game on ESC
             if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
                 running = false;
             }
@@ -106,12 +94,14 @@ void SolderingGame::run() {
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
 
+        // Handle Enter key to close game after completion
         if (gameFinished) {
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
-                    if (gameSuccess)
-                        successfulJobs++;
-                    cout << "Total successful jobs: " << successfulJobs << endl;
+                    if (gameSuccess) {
+                        successfulJobs++;  // Increment successful job counter
+                        cout << "Total successful jobs: " << successfulJobs << endl;
+                    }
                     running = false;
                 }
             }
