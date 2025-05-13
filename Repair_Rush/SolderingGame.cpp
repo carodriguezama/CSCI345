@@ -1,10 +1,11 @@
 #include "SolderingGame.h"
 #include <cstdlib>
+#include <ctime>     // For time()
 #include <iostream>
 
 SolderingGame::SolderingGame(SDL_Renderer* ren, MediaManager* media, int &jobCounter)
     : renderer(ren), mm(media), selected(nullptr), offsetX(0), offsetY(0), successfulJobs(jobCounter) {
-    
+
     background = new Sprite(mm, "mbImg/motherboard.bmp", 0, 0);
     background->rect.w = 800;
     background->rect.h = 600;
@@ -13,10 +14,14 @@ SolderingGame::SolderingGame(SDL_Renderer* ren, MediaManager* media, int &jobCou
 
     partName[parts[0]] = "Iron";
 
-
-    for (auto part : parts)
+    for (auto part : parts) {
         locked[part] = false;
 
+        // Apply red color correction (tint) to each part
+        if (part->texture) {
+            SDL_SetTextureColorMod(part->texture, 255, 0, 0);  // Red tint
+        }
+    }
 }
 
 SolderingGame::~SolderingGame() {
@@ -26,6 +31,12 @@ SolderingGame::~SolderingGame() {
 }
 
 void SolderingGame::run() {
+    // Random delay from 1 to 4 seconds
+    srand(static_cast<unsigned int>(time(nullptr)));
+    int delaySeconds = 1 + rand() % 4;
+    std::cout << "Delaying game start by " << delaySeconds << " seconds...\n";
+    SDL_Delay(delaySeconds * 1000); // Delay in milliseconds
+
     bool running = true;
     SDL_Event event;
 
@@ -63,7 +74,7 @@ void SolderingGame::run() {
                         selected->rect.y = 150;
                         locked[selected] = true;
                         placementOrder.push_back(partName[selected]);
-                        cout << partName[selected] << " placed at (200,150)\n";
+                        std::cout << partName[selected] << " placed at (200,150)\n";
                     }
                 }
                 selected = nullptr;
@@ -81,7 +92,7 @@ void SolderingGame::run() {
 
         if (placementOrder.size() == 3) {
             gameFinished = true;
-            vector<string> correctOrder = {"Iron", "Wire", "Chip"};
+            std::vector<std::string> correctOrder = {"Iron", "Wire", "Chip"};
             if (placementOrder == correctOrder) gameSuccess = true;
         }
 
@@ -111,7 +122,7 @@ void SolderingGame::run() {
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
                     if (gameSuccess)
                         successfulJobs++;
-                    cout << "Total successful jobs: " << successfulJobs << endl;
+                    std::cout << "Total successful jobs: " << successfulJobs << std::endl;
                     running = false;
                 }
             }
