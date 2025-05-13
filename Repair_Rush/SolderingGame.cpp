@@ -1,148 +1,124 @@
-#include "SolderingGame.h"
-#include "Animation.h"
-#include "ControlScreen.h"
-#include "Game.h"
-#include "SDL.h"
-#include "ServiceTable.h"
-#include "Sound.h"
-#include "Sprite.h"
-#include "MotherboardMinigame.h"
-#include "Text.h"
-#include "SolderingGame.h"
-#include "Tile.h"
-#include <fstream>
+#include "SolderingMinigame.h"
+#include <cstdlib>
 #include <iostream>
-#include <stdlib.h>
-#include <vector>
-SolderingGame::SolderingGame(SDL_Renderer* renderer) : renderer_(renderer), gameState_(GameState::MAIN_SCENE), solderingActive_(false), mouseHeld_(false), solderComp_(false) {
-    // Initialize SDL textures
-    repairShopTex_ = loadTexture("Repair_Shop.bmp");
-    motherboardTex_ = loadTexture("SolderingMotherBoard.bmp");
-    ironTex_ = loadTexture("Soldering_Iron.bmp");
-    signTex_ = loadTexture("Solder_Sign.bmp");
 
-    if (!repairShopTex_ || !motherboardTex_ || !ironTex_ || !signTex_) {
-        std::cerr << "Failed to load textures\n";
-        SDL_Quit();
-        throw std::runtime_error("Texture load failure");
-    }
+SolderingMinigame::SolderingMinigame(SDL_Renderer* ren, MediaManager* media, int &jobCounter)
+    : renderer(ren), mm(media), selected(nullptr), offsetX(0), offsetY(0), successfulJobs(jobCounter) {
+    
+    background = new Sprite(mm, "solderImg/soldering_board.bmp", 0, 0);
+    background->rect.w = 800;
+    background->rect.h = 600;
 
-    // Initialize rects
-    ironRect_ = {375, 275, IRON_WIDTH, IRON_HEIGHT};
-    signRect_ = {600, 400, 60, 60};
-    solderPoint_ = {147, 136};
+    parts.push_back(new Sprite(mm, "solderImg/iron.bmp"));
+    parts.push_back(new Sprite(mm, "solderImg/wire.bmp"));
+    parts.push_back(new Sprite(mm, "solderImg/chip.bmp"));
+
+    partName[parts[0]] = "Iron";
+    partName[parts[1]] = "Wire";
+    partName[parts[2]] = "Chip";
+
+    for (auto part : parts)
+        locked[part] = false;
+
+    font = TTF_OpenFont("./Fonts/BungeeSpice-Regular.ttf", 28);
 }
 
-SolderingGame::~SolderingGame() {
-    // Clean up SDL resources
-    SDL_DestroyTexture(repairShopTex_);
-    SDL_DestroyTexture(motherboardTex_);
-    SDL_DestroyTexture(ironTex_);
-    SDL_DestroyTexture(signTex_);
+SolderingMinigame::~SolderingMinigame() {
+    for (auto part : parts) delete part;
+    delete background;
+    if (font) TTF_CloseFont(font);
 }
 
-SDL_Texture* SolderingGame::loadTexture(const std::string& file) {
-    SDL_Surface* surface = SDL_LoadBMP(file.c_str());
-    if (!surface) {
-        std::cerr << "Failed to load: " << file << " SDL_Error: " << SDL_GetError() << std::endl;
-        return nullptr;
-    }
-    SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0, 255, 0));  // Make green transparent
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
-    SDL_FreeSurface(surface);
-    return texture;
-}
+void SolderingMinigame::run() {
+    bool running = true;
+    SDL_Event event;
 
-bool SolderingGame::isNear(SDL_Rect a, SDL_Rect b, int distance) {
-    int dx = (a.x + a.w / 2) - (b.x + b.w / 2);
-    int dy = (a.y + a.h / 2) - (b.y + b.h / 2);
-    return (dx * dx + dy * dy) <= (distance * distance);
-}
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) return;
 
-void SolderingGame::run() {
-    SDL_Event e;
-    bool quit = false;
-
-    while (!quit) {
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT)
-                quit = true;
-
-            handleEvents(e);
-        }
-
-        update();
-        render();
-    }
-}
-
-void SolderingGame::handleEvents(SDL_Event& e) {
-    if (e.type == SDL_KEYDOWN) {
-        switch (e.key.keysym.sym) {
-            case SDLK_w: ironRect_.y -= 5; break;
-            case SDLK_s: ironRect_.y += 5; break;
-            case SDLK_a: ironRect_.x -= 5; break;
-            case SDLK_d: ironRect_.x += 5; break;
-            case SDLK_e:
-                if (gameState_ == GameState::MAIN_SCENE && isNear(ironRect_, signRect_) && !solderComp_) {
-                    gameState_ = GameState::MINI_GAME;
-                    ironRect_ = {375, 275, IRON_WIDTH, IRON_HEIGHT};
-                }
-                break;
-        }
-    }
-
-    if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
-        mouseHeld_ = true;
-    else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT)
-        mouseHeld_ = false;
-}
-
-void SolderingGame::update() {
-    if (gameState_ == GameState::MINI_GAME) {
-        int dx = (ironRect_.x + ironRect_.w / 2) - solderPoint_.x;
-        int dy = (ironRect_.y + ironRect_.h / 2) - solderPoint_.y;
-        int distSq = dx * dx + dy * dy;
-
-        if (distSq < 30 * 30) {
-            if (!solderingActive_ && mouseHeld_) {
-                solderingActive_ = true;
-                solderStartTime_ = SDL_GetTicks();
-                solderRequiredTime_ = 1000 + rand() % 3000;
-            }
-
-            if (solderingActive_) {
-                Uint32 elapsed = SDL_GetTicks() - solderStartTime_;
-                if (!mouseHeld_) {
-                    solderingActive_ = false;
-                } else {
-                    float progress = (float)elapsed / solderRequiredTime_;
-                    if (progress > 1.0f) {
-                        progress = 1.0f;
-                        solderingActive_ = false;
-                        solderComp_ = true;
-                        gameState_ = GameState::MAIN_SCENE;
+            if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                int mx = event.button.x, my = event.button.y;
+                for (auto part : parts) {
+                    if (locked[part]) continue;
+                    SDL_Rect r = part->rect;
+                    if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) {
+                        selected = part;
+                        offsetX = mx - r.x;
+                        offsetY = my - r.y;
+                        break;
                     }
                 }
             }
-        } else {
-            solderingActive_ = false;
+
+            if (event.type == SDL_MOUSEMOTION && selected != nullptr) {
+                int mx = event.motion.x, my = event.motion.y;
+                selected->rect.x = mx - offsetX;
+                selected->rect.y = my - offsetY;
+            }
+
+            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
+                if (selected && !locked[selected]) {
+                    int x = selected->rect.x;
+                    int y = selected->rect.y;
+
+                    if (abs(x - 200) < 20 && abs(y - 150) < 20) {
+                        selected->rect.x = 200;
+                        selected->rect.y = 150;
+                        locked[selected] = true;
+                        placementOrder.push_back(partName[selected]);
+                        cout << partName[selected] << " placed at (200,150)\n";
+                    }
+                }
+                selected = nullptr;
+            }
+
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+                running = false;
+            }
+        }
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+        background->render(renderer);
+        for (auto p : parts) p->render(renderer);
+
+        if (placementOrder.size() == 3) {
+            gameFinished = true;
+            vector<string> correctOrder = {"Iron", "Wire", "Chip"};
+            if (placementOrder == correctOrder) gameSuccess = true;
+        }
+
+        if (gameFinished) {
+            SDL_Color white = {255, 255, 255};
+            SDL_Surface* surf;
+            SDL_Texture* tex;
+            SDL_Rect dst = {250, 500, 0, 0};
+            if (gameSuccess) {
+                surf = TTF_RenderText_Solid(font, "Solder Complete! Press Enter.", white);
+            } else {
+                surf = TTF_RenderText_Solid(font, "Incorrect Order! Press Enter.", white);
+            }
+            tex = SDL_CreateTextureFromSurface(renderer, surf);
+            dst.w = surf->w;
+            dst.h = surf->h;
+            SDL_RenderCopy(renderer, tex, NULL, &dst);
+            SDL_FreeSurface(surf);
+            SDL_DestroyTexture(tex);
+        }
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
+
+        if (gameFinished) {
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
+                    if (gameSuccess)
+                        successfulJobs++;
+                    cout << "Total successful jobs: " << successfulJobs << endl;
+                    running = false;
+                }
+            }
         }
     }
-}
-
-void SolderingGame::render() {
-    SDL_RenderClear(renderer_);
-
-    if (gameState_ == GameState::MAIN_SCENE) {
-        SDL_RenderCopy(renderer_, repairShopTex_, nullptr, nullptr);
-        if (!solderComp_) {
-            SDL_RenderCopy(renderer_, signTex_, nullptr, &signRect_);
-        }
-    } else if (gameState_ == GameState::MINI_GAME) {
-        SDL_RenderCopy(renderer_, motherboardTex_, nullptr, nullptr);
-    }
-
-    SDL_RenderCopy(renderer_, ironTex_, nullptr, &ironRect_);
-    SDL_RenderPresent(renderer_);
 }
