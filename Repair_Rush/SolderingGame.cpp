@@ -1,44 +1,47 @@
 #include "SolderingGame.h"
 #include <cstdlib>
-#include <ctime>     // For time()
 #include <iostream>
+#include <map>
+#include <vector>
 
 SolderingGame::SolderingGame(SDL_Renderer* ren, MediaManager* media, int &jobCounter)
-    : renderer(ren), mm(media), selected(nullptr), offsetX(0), offsetY(0), successfulJobs(jobCounter) {
+    : renderer(ren), mm(media), selectedIndex(-1), offsetX(0), offsetY(0), successfulJobs(jobCounter) {
 
-    background = new Sprite(mm, "mbImg/motherboard.bmp", 0, 0);
-    background->rect.w = 800;
-    background->rect.h = 600;
+    srand(static_cast<unsigned int>(time(nullptr)));  // for delay randomness
 
-    parts.push_back(new Sprite(mm, "Images/Tools/Soldering_Iron.bmp"));
+    // Load background texture
+    backgroundTex = mm->loadTexture("mbImg/motherboard.bmp");
+    backgroundRect = {0, 0, 800, 600};
 
-    partName[parts[0]] = "Iron";
+    // Load the parts textures
+    SDL_Texture* ironTex = mm->loadTexture("Images/Tools/Soldering_Iron.bmp");
 
-    for (auto part : parts) {
-        locked[part] = false;
+    // Apply red tint to the soldering iron texture
+    SDL_SetTextureColorMod(ironTex, 255, 0, 0);
 
-        // Apply red color correction (tint) to each part
-        if (part->texture) {
-            SDL_SetTextureColorMod(part->texture, 255, 0, 0);  // Red tint
-        }
-    }
+    partTextures.push_back(ironTex);
+    partRects.push_back({100, 100, 64, 64});  // initial position and size
+    partNames[0] = "Iron";
+    partLocked["Iron"] = false;
 }
 
 SolderingGame::~SolderingGame() {
-    for (auto part : parts) delete part;
-    delete background;
+    // Cleanup loaded textures
+    for (auto tex : partTextures) {
+        SDL_DestroyTexture(tex);
+    }
+    SDL_DestroyTexture(backgroundTex);
     if (font) TTF_CloseFont(font);
 }
 
 void SolderingGame::run() {
-    // Random delay from 1 to 4 seconds
-    srand(static_cast<unsigned int>(time(nullptr)));
-    int delaySeconds = 1 + rand() % 4;
-    std::cout << "Delaying game start by " << delaySeconds << " seconds...\n";
-    SDL_Delay(delaySeconds * 1000); // Delay in milliseconds
-
     bool running = true;
     SDL_Event event;
+
+    // Random delay before starting the game
+    int delaySeconds = 1 + rand() % 4;
+    std::cout << "Delaying game start by " << delaySeconds << " seconds...\n";
+    SDL_Delay(delaySeconds * 1000);
 
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -46,11 +49,12 @@ void SolderingGame::run() {
 
             if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
                 int mx = event.button.x, my = event.button.y;
-                for (auto part : parts) {
-                    if (locked[part]) continue;
-                    SDL_Rect r = part->rect;
-                    if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) {
-                        selected = part;
+                for (size_t i = 0; i < partRects.size(); ++i) {
+                    SDL_Rect r = partRects[i];
+                    if (!partLocked[partNames[i]] &&
+                        mx >= r.x && mx <= r.x + r.w &&
+                        my >= r.y && my <= r.y + r.h) {
+                        selectedIndex = i;
                         offsetX = mx - r.x;
                         offsetY = my - r.y;
                         break;
@@ -58,26 +62,24 @@ void SolderingGame::run() {
                 }
             }
 
-            if (event.type == SDL_MOUSEMOTION && selected != nullptr) {
+            if (event.type == SDL_MOUSEMOTION && selectedIndex != -1) {
                 int mx = event.motion.x, my = event.motion.y;
-                selected->rect.x = mx - offsetX;
-                selected->rect.y = my - offsetY;
+                partRects[selectedIndex].x = mx - offsetX;
+                partRects[selectedIndex].y = my - offsetY;
             }
 
-            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
-                if (selected && !locked[selected]) {
-                    int x = selected->rect.x;
-                    int y = selected->rect.y;
-
-                    if (abs(x - 200) < 20 && abs(y - 150) < 20) {
-                        selected->rect.x = 200;
-                        selected->rect.y = 150;
-                        locked[selected] = true;
-                        placementOrder.push_back(partName[selected]);
-                        std::cout << partName[selected] << " placed at (200,150)\n";
-                    }
+            if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && selectedIndex != -1) {
+                int x = partRects[selectedIndex].x;
+                int y = partRects[selectedIndex].y;
+                if (abs(x - 200) < 20 && abs(y - 150) < 20) {
+                    partRects[selectedIndex].x = 200;
+                    partRects[selectedIndex].y = 150;
+                    std::string name = partNames[selectedIndex];
+                    partLocked[name] = true;
+                    partOrder.push_back(name);
+                    std::cout << name << " placed at (200,150)\n";
                 }
-                selected = nullptr;
+                selectedIndex = -1;
             }
 
             if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
@@ -87,15 +89,23 @@ void SolderingGame::run() {
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        background->render(renderer);
-        for (auto p : parts) p->render(renderer);
 
-        if (placementOrder.size() == 3) {
-            gameFinished = true;
-            std::vector<std::string> correctOrder = {"Iron", "Wire", "Chip"};
-            if (placementOrder == correctOrder) gameSuccess = true;
+        // Render background
+        SDL_RenderCopy(renderer, backgroundTex, nullptr, &backgroundRect);
+
+        // Render all parts
+        for (size_t i = 0; i < partTextures.size(); ++i) {
+            SDL_RenderCopy(renderer, partTextures[i], nullptr, &partRects[i]);
         }
 
+        // Check if the game is finished
+        if (partOrder.size() == 3) {
+            gameFinished = true;
+            std::vector<std::string> correctOrder = {"Iron", "Wire", "Chip"};
+            if (partOrder == correctOrder) gameSuccess = true;
+        }
+
+        // Display completion message
         if (gameFinished) {
             SDL_Color white = {255, 255, 255};
             SDL_Surface* surf;
@@ -117,6 +127,7 @@ void SolderingGame::run() {
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
 
+        // Handle game finish and job tracking
         if (gameFinished) {
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
