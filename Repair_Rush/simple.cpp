@@ -186,8 +186,8 @@ public:
         }
         if (event.type == SDL_KEYDOWN) {
           if (event.key.keysym.sym == SDLK_e) {
-            SolderingGame solderingGame(getRen());
-            solderingGame.run();  // Starts the mini-game
+            SolderingGame sd(getRen(), getMM(), successfulJobs);
+            sd.run();  // Starts the mini-game
            } 
         }
         

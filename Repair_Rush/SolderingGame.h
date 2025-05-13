@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class SolderingMinigame {
+class SolderingGame {
     SDL_Renderer* renderer;
     MediaManager* mm;
     vector<Sprite*> parts;
@@ -24,7 +24,7 @@ class SolderingMinigame {
     int& successfulJobs;
 
 public:
-    SolderingMinigame(SDL_Renderer* ren, MediaManager* media, int &jobCounter);
+    SolderingGame(SDL_Renderer* ren, MediaManager* media, int &jobCounter);
     void run();
-    ~SolderingMinigame();
+    ~SolderingGame();
 };

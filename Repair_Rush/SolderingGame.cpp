@@ -1,35 +1,31 @@
-#include "SolderingMinigame.h"
+#include "SolderingGame.h"
 #include <cstdlib>
 #include <iostream>
 
-SolderingMinigame::SolderingMinigame(SDL_Renderer* ren, MediaManager* media, int &jobCounter)
+SolderingGame::SolderingGame(SDL_Renderer* ren, MediaManager* media, int &jobCounter)
     : renderer(ren), mm(media), selected(nullptr), offsetX(0), offsetY(0), successfulJobs(jobCounter) {
     
-    background = new Sprite(mm, "solderImg/soldering_board.bmp", 0, 0);
+    background = new Sprite(mm, "mbImg/motherboard.bmp", 0, 0);
     background->rect.w = 800;
     background->rect.h = 600;
 
-    parts.push_back(new Sprite(mm, "solderImg/iron.bmp"));
-    parts.push_back(new Sprite(mm, "solderImg/wire.bmp"));
-    parts.push_back(new Sprite(mm, "solderImg/chip.bmp"));
+    parts.push_back(new Sprite(mm, "Images/Tools/Soldering_Iron.bmp"));
 
     partName[parts[0]] = "Iron";
-    partName[parts[1]] = "Wire";
-    partName[parts[2]] = "Chip";
+
 
     for (auto part : parts)
         locked[part] = false;
 
-    font = TTF_OpenFont("./Fonts/BungeeSpice-Regular.ttf", 28);
 }
 
-SolderingMinigame::~SolderingMinigame() {
+SolderingGame::~SolderingGame() {
     for (auto part : parts) delete part;
     delete background;
     if (font) TTF_CloseFont(font);
 }
 
-void SolderingMinigame::run() {
+void SolderingGame::run() {
     bool running = true;
     SDL_Event event;
 
