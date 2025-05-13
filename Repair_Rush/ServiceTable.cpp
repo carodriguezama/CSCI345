@@ -3,11 +3,8 @@
 #include <iostream>
 using namespace std;
 
-ServiceTable::ServiceTable(SDL_Renderer *renderer, MediaManager *mm,
-                           int &whichRef)
-    : ren(renderer), mm(mm), which(whichRef) {
-  this->ren = renderer;
-  this->mm = mm;
+ServiceTable::ServiceTable(SDL_Renderer *renderer, MediaManager *mm, int &whichRef, int &jobCounter)
+  : ren(renderer), mm(mm), which(whichRef), successfulJobs(jobCounter) {
   cout << "Creating Tile for mini-game background...\n";
   background = new Tile(mm, "Images/Background/serviceTable.png");
   hand = new Tile(mm, "Images/Tools/hand2.bmp");
@@ -26,8 +23,7 @@ ServiceTable::ServiceTable(SDL_Renderer *renderer, MediaManager *mm,
   halfComputer->rect = brokenComputer->rect;
   fixedComputer->rect = brokenComputer->rect;
 
-  // Screw positions (example: lower corners of screen or wherever you need
-  // them)
+  // Screw positions (example: lower corners of screen or wherever you need them)
   screw1Pos = {220, 198, 32, 32}; // left screw moved in + down
   screw2Pos = {540, 198, 32, 32}; // right screw moved in + down
 
@@ -116,102 +112,90 @@ SDL_Rect ServiceTable::getScrewdriverTipRect() {
 
 void ServiceTable::handleEvent(SDL_Event &event) {
   if (event.type == SDL_KEYDOWN) {
-
     switch (event.key.keysym.sym) {
     case SDLK_w:
       hand->rect.y -= 22;
       if (holdingScrewdriver)
         screwdriver->rect.y -= 22;
       break;
-
     case SDLK_s:
       hand->rect.y += 22;
       if (holdingScrewdriver)
         screwdriver->rect.y += 22;
       break;
-
     case SDLK_a:
       hand->rect.x -= 22;
       if (holdingScrewdriver)
         screwdriver->rect.x -= 22;
       break;
-
     case SDLK_d:
       hand->rect.x += 22;
       if (holdingScrewdriver)
         screwdriver->rect.x += 22;
       break;
-
-    case SDLK_SPACE:
+    case SDLK_SPACE: 
+    {
       if (screwdriverActive && isTouching(hand, screwdriver)) {
         screwdriverActive = false;
         holdingScrewdriver = true;
+        cout << "Picked up screwdriver\n";
+        return;
       }
-      break;
-    }
-  }
-  if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
-    // Try to pick up screwdriver
-    if (screwdriverActive && isTouching(hand, screwdriver)) {
-      screwdriverActive = false;
-      holdingScrewdriver = true;
-      cout << "Picked up screwdriver\n";
-      return;
-    }
 
-    if (!holdingScrewdriver) {
-      cout << "Not holding screwdriver\n";
-      return;
-    }
+      if (!holdingScrewdriver) {
+        cout << "Not holding screwdriver\n";
+        return;
+      }
 
-    cout << "Holding screwdriver — trying to unscrew...\n";
+      cout << "Holding screwdriver — trying to unscrew...\n";
 
-    // 🛠 Use hand->rect instead of screwdriver tip
-    SDL_Rect toolHitbox = screwdriver->rect;
+      SDL_Rect toolHitbox = screwdriver->rect;
 
-    if (currentPhase == PHASE_REMOVE_SCREWS) {
-      if (!screw1Removed && isTouching(hand->rect, screw1Pos)) {
+    if (currentPhase == PHASE_REMOVE_SCREWS) 
+    {
+      if (!screw1Removed && isTouching(hand->rect, screw1Pos)) 
+      {
         screw1Removed = true;
         cout << "Screw 1 removed\n";
       }
 
-      if (!screw2Removed && isTouching(hand->rect, screw2Pos)) {
-        screw2Removed = true;
-        cout << "Screw 2 removed\n";
-      }
-
-      // Only advance to screen-off if BOTH screws are removed
-      if (screw1Removed && screw2Removed &&
-          currentPhase == PHASE_REMOVE_SCREWS) {
-        cout << "Both screws removed. Advancing...\n";
-        currentPhase = PHASE_SCREEN_OFF;
-        phaseTimer = SDL_GetTicks();
-      }
-
+    if (!screw2Removed && isTouching(hand->rect, screw2Pos)) 
+    {
+      screw2Removed = true;
+      cout << "Screw 2 removed\n";
     }
 
-    else if (currentPhase == PHASE_REATTACH_SCREWS) {
-      if (!screw1Reattached && isTouching(toolHitbox, screw1Pos)) {
-        screw1Reattached = true;
-      }
-      if (!screw2Reattached && isTouching(toolHitbox, screw2Pos)) {
-        screw2Reattached = true;
-      }
-
-      if (screw1Reattached && screw2Reattached) {
-        currentPhase = PHASE_DONE;
-      }
+    if (screw1Removed && screw2Removed &&
+        currentPhase == PHASE_REMOVE_SCREWS) 
+        {
+      cout << "Both screws removed. Advancing...\n";
+      currentPhase = PHASE_SCREEN_OFF;
+      phaseTimer = SDL_GetTicks();
     }
-  }
-  if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-    currentPhase = PHASE_DONE; // optional: reset state
-    which = 3;                 // or however you're signaling exit
-    return;
+    } else if (currentPhase == PHASE_REATTACH_SCREWS) {
+    if (!screw1Reattached && isTouching(toolHitbox, screw1Pos)) {
+      screw1Reattached = true;
+    }
+    if (!screw2Reattached && isTouching(toolHitbox, screw2Pos)) {
+      screw2Reattached = true;
+    }
+
+    if (screw1Reattached && screw2Reattached) {
+      currentPhase = PHASE_DONE;
+    }
+    }
+    break;
+    }
+
+    case SDLK_ESCAPE:
+      currentPhase = PHASE_DONE; // optional: reset state
+      which = 3;
+      return;
+    }
   }
 }
 
 void ServiceTable::update(float dt) {
-
   if (currentPhase == PHASE_SCREEN_OFF && SDL_GetTicks() - phaseTimer > 2000) {
     currentPhase = PHASE_FIXED;
     phaseTimer = SDL_GetTicks();
@@ -219,6 +203,45 @@ void ServiceTable::update(float dt) {
              SDL_GetTicks() - phaseTimer > 2000) {
     currentPhase = PHASE_REATTACH_SCREWS;
   }
+}
+
+bool ServiceTable::run() {
+  bool running = true;
+  SDL_Event event;
+
+  while (running) {
+    while (SDL_PollEvent(&event)) {
+      handleEvent(event);
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+        return false;
+    }
+
+    update(0.016f);
+    render();
+
+    if (currentPhase == PHASE_DONE && !gameFinished) {
+      gameFinished = true;
+      gameSuccess = true;
+      successfulJobs++;
+      std::cout << "ServiceTable complete. Total successful jobs: " << successfulJobs << std::endl;
+    }
+
+    SDL_RenderPresent(ren);
+    SDL_Delay(16);
+
+    if (gameFinished) {
+      while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
+          return gameSuccess;
+        }
+        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return gameSuccess;
 }
 
 ServiceTable::~ServiceTable() {

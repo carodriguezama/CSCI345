@@ -25,6 +25,6 @@ class SolderingGame {
 
 public:
     SolderingGame(SDL_Renderer* ren, MediaManager* media, int &jobCounter);
-    void run();
+    bool run(); // needed to change for errors
     ~SolderingGame();
 };

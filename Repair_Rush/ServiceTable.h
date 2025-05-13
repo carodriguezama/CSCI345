@@ -1,12 +1,13 @@
 #pragma once
 #include "SDL.h"
-
 #include "Tile.h"
+#include "MediaManager.h" // Make sure this is included
 #include <vector>
+#include <string>
 
 class ServiceTable {
 public:
-  ServiceTable(SDL_Renderer *renderer, MediaManager *mm, int &whichRef);
+  ServiceTable(SDL_Renderer *renderer, MediaManager *mm, int &whichRef, int &jobCounter);
   ~ServiceTable();
 
   void render();
@@ -17,6 +18,9 @@ public:
   void renderScrew(SDL_Rect pos);
   void renderImage(const std::string &path);
   SDL_Rect getScrewdriverTipRect();
+
+  // Needed to match your .cpp
+  bool run();
 
 private:
   SDL_Renderer *ren;
@@ -32,6 +36,7 @@ private:
 
   bool screwdriverActive = true;
   bool holdingScrewdriver = false;
+
   enum MiniGamePhase {
     PHASE_REMOVE_SCREWS,
     PHASE_SCREEN_OFF,
@@ -47,8 +52,13 @@ private:
   bool screw1Reattached = false;
   bool screw2Reattached = false;
 
-  SDL_Rect screw1Pos = {500, 120, 32, 32}; // adjust these
+  SDL_Rect screw1Pos = {500, 120, 32, 32};
   SDL_Rect screw2Pos = {600, 120, 32, 32};
 
   Uint32 phaseTimer = 0;
+
+  // Add these missing members
+  bool gameSuccess = false;
+  bool gameFinished = false;
+  int &successfulJobs;
 };

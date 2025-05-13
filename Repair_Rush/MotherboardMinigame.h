@@ -25,6 +25,6 @@ class MotherboardMinigame {
 
 public:
     MotherboardMinigame(SDL_Renderer* ren, MediaManager* media, int &jobCounter);
-    void run();
+    bool run(); //needed to change to run
     ~MotherboardMinigame();
 };

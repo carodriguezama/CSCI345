@@ -8,6 +8,7 @@
 #include "MotherboardMinigame.h"
 #include "Text.h"
 #include "SolderingGame.h"
+#include "GameOver.h"
 #include "Tile.h"
 #include <fstream>
 #include <iostream>
@@ -29,7 +30,7 @@ class MyGame : public Game {
   bool start;
   TTF_Font *font;
   int which;
-  int successfulJobs;
+  int successfulJobs = 0; // checking 
 
   ServiceTable *minigame;
 
@@ -68,8 +69,7 @@ public:
     // ADD: mini-game background
     background.push_back(new Tile(
         getMM(), "Images/Background/serviceTable.png")); // background[5]
-    minigame = new ServiceTable(getRen(), getMM(), which);
-
+    minigame = new ServiceTable(getRen(), getMM(), which, successfulJobs);
     wave = new Sound("./Sounds/footsteo.wav");
     grab = new Sound("./Sounds/grab.wav");
     text = new Text(getRen(), "PRESS ENTER", 45, 450, 300, false);
@@ -180,15 +180,23 @@ public:
         if (event.key.keysym.sym == SDLK_c)
           which = 4;
 
-        if (event.key.keysym.sym==SDLK_m) {
+        if (event.key.keysym.sym==SDLK_m) 
+        {
           MotherboardMinigame mb(getRen(), getMM(), successfulJobs);
           mb.run();
         }
-        if (event.type == SDL_KEYDOWN) {
-          if (event.key.keysym.sym == SDLK_e) {
+        if (event.type == SDL_KEYDOWN) 
+        {
+          if (event.key.keysym.sym == SDLK_e) 
+          {
             SolderingGame sd(getRen(), getMM(), successfulJobs);
-            sd.run();  // Starts the mini-game
-           } 
+            bool gameSuccess = sd.run();
+            if (gameSuccess && successfulJobs >= 2) 
+            {
+                showGameOverScreen(getRen(), font);
+            }
+
+          } 
         }
         
         if (event.key.keysym.sym == SDLK_h) {
@@ -309,8 +317,10 @@ public:
         }
 
         // ENTER MINI-GAME
-        if (event.key.keysym.sym == SDLK_i) {
-          if (which != 5) {
+        if (event.key.keysym.sym == SDLK_i) 
+        {
+          if (which != 5) 
+          {
             which = 5;
           }
         }
@@ -341,7 +351,8 @@ public:
   }
 };
 
-int main(void) {
+int main(void) 
+{
   MyGame game(1);
   game.run();
   return 0;
