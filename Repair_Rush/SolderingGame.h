@@ -1,29 +1,64 @@
 #ifndef SOLDERING_GAME_H
 #define SOLDERING_GAME_H
 
-#include <SDL2/SDL.h>  // Include SDL2 for rendering and events
+#include "Animation.h"
+#include "ControlScreen.h"
+#include "Game.h"
+#include "SDL.h"
+#include "ServiceTable.h"
+#include "Sound.h"
+#include "Sprite.h"
+#include "MotherboardMinigame.h"
+#include "Text.h"
+#include "SolderingGame.h"
+#include "Tile.h"
+#include <fstream>
 #include <iostream>
+#include <stdlib.h>
+#include <vector>
 
-// Declare the SolderingGame class or functions if you are using an object-oriented approach.
-// Example with a class:
-class SolderingGame {
-public:
-    SolderingGame(SDL_Renderer* renderer);  // Constructor to initialize the mini-game
-    ~SolderingGame();  // Destructor to clean up resources
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+const int IRON_WIDTH = 50;
+const int IRON_HEIGHT = 50;
 
-    void run();  // Function to start and run the mini-game
-
-private:
-    SDL_Renderer* renderer_;  // SDL_Renderer to handle rendering
-    bool isRunning;  // Flag to track if the mini-game is still running
-
-    void handleEvents();  // Function to handle events like user input
-    void update();  // Function to update the game logic
-    void render();  // Function to render the game visuals
-    void cleanUp();  // Function to clean up resources
+enum class GameState {
+    MAIN_SCENE,
+    MINI_GAME
 };
 
-// Or, if you prefer a procedural approach, you could define functions:
-void runSolderingGame(SDL_Renderer* renderer);  // Function to run the soldering mini-game
+// SolderingGame class declaration
+class SolderingGame {
+public:
+    SolderingGame(SDL_Renderer* renderer);
+    ~SolderingGame();
+
+    void run();  // Main game loop
+    void handleEvents(SDL_Event& e);  // Handle user input
+    void update();  // Update game state and logic
+    void render();  // Render the current game state
+
+private:
+    SDL_Renderer* renderer_;  // SDL_Renderer for drawing
+    SDL_Texture* repairShopTex_;  // Texture for the repair shop
+    SDL_Texture* motherboardTex_;  // Texture for the motherboard
+    SDL_Texture* ironTex_;  // Texture for the soldering iron
+    SDL_Texture* signTex_;  // Texture for the sign
+
+    SDL_Rect ironRect_;  // Position of the soldering iron
+    SDL_Rect signRect_;  // Position of the sign to trigger the mini-game
+
+    GameState gameState_;  // Current game state (MAIN_SCENE or MINI_GAME)
+    SDL_Point solderPoint_;  // The point to solder to
+    bool solderingActive_;  // Flag to track if soldering is active
+    Uint32 solderStartTime_;  // Start time of soldering
+    Uint32 solderRequiredTime_;  // Required time to complete soldering
+    bool mouseHeld_;  // Flag to track mouse hold state
+    bool solderComp_;  // Flag to track if soldering is completed
+
+    // Helper functions
+    SDL_Texture* loadTexture(const std::string& file);  // Load a texture from a file
+    bool isNear(SDL_Rect a, SDL_Rect b, int distance = 50);  // Check if two rectangles are near
+};
 
 #endif // SOLDERING_GAME_H
