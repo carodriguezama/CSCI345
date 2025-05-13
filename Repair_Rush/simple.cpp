@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "MotherboardMinigame.h"
 #include "Text.h"
+#include "SolderingGame.h"
 #include "Tile.h"
 #include <fstream>
 #include <iostream>
@@ -182,6 +183,12 @@ public:
         if (event.key.keysym.sym==SDLK_m) {
           MotherboardMinigame mb(getRen(), getMM(), successfulJobs);
           mb.run();
+        }
+        if (event.type == SDL_KEYDOWN) {
+          if (event.key.keysym.sym == SDLK_e) {
+            SolderingGame sd(getRen(), getMM(), successfulJobs);
+            sd.run();  // Starts the mini-game
+           } 
         }
         
         if (event.key.keysym.sym == SDLK_h) {
