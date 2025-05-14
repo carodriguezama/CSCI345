@@ -15,7 +15,6 @@
 #include <vector>
 
 using namespace std;
-Mix_Music *music = nullptr;
 
 class MyGame : public Game {
   float dt;
@@ -23,9 +22,9 @@ class MyGame : public Game {
   vector<Sprite *> tools;
   vector<Sprite *> characters;
   vector<Tile *> background;
-  Sound *wave, *grab;
+  vector<Sound*> sounds;
   Text *text, *help;
-  string tool;
+  string tool,chan;
   bool start;
   TTF_Font *font;
   int which;
@@ -65,25 +64,24 @@ public:
     }
     bin.close();
 
+    ifstream ain("./game_textFiles/audio.txt");
+    while (!ain.eof()) {
+      ain >> tool; //>> chan >> frame;
+      sounds.push_back(new Sound(tool));
+    }
+    ain.close();
+
+    sounds[2]->loop();
+
     // ADD: mini-game background
     background.push_back(new Tile(
         getMM(), "Images/Background/serviceTable.png")); // background[5]
     minigame = new ServiceTable(getRen(), getMM(), which);
 
-    wave = new Sound("./Sounds/footsteo.wav");
-    grab = new Sound("./Sounds/grab.wav");
     text = new Text(getRen(), "PRESS ENTER", 45, 450, 300, false);
     help = new Text(getRen(), "please help me my computer is overheating", 12,
                     460, 150);
     dt = .01;
-
-    music = Mix_LoadMUS("./Sounds/Green Meadows.ogg");
-    if (!music) {
-      cerr << "Failed to load music: " << Mix_GetError() << endl;
-    } else {
-      Mix_PlayMusic(music, -1);
-      Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
-    }
   }
   void selectCharacter(int index) {
     for (int i = 0; i < characters.size(); i++)
@@ -122,10 +120,10 @@ public:
                 characters[character]->sety(dy);
                 characters[character]->walkingVertical(vertical);
             }
-            wave->play();
+            sounds[0]->play();
         }
     }
-}
+  }
 
 
   void loop() {
@@ -237,7 +235,7 @@ public:
               for (int i = 0; i < 5; ++i) {
                   if (tools[i]->isActive()) {
                       tools[i]->setActive(!tools[6]->isTouching(*tools[i]));
-                      grab->play();
+                      sounds[1]->play();
                   }
               }
               break;
@@ -265,8 +263,11 @@ public:
   }
 
   ~MyGame() {
-    wave->free();
-    grab->free();
+    for (int i = 0; i < sounds.size();i++) {
+      sounds[i]->free();
+      delete sounds[i];
+    }
+
     for (auto tool : tools)
       delete tool;
     for (auto tool : characters)
@@ -275,8 +276,6 @@ public:
       delete tool;
     text->destroy();
     help->destroy();
-    Mix_HaltMusic();
-    Mix_FreeMusic(music);
     TTF_CloseFont(font);
     delete minigame;
   }
