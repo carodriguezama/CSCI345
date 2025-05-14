@@ -26,7 +26,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/CSCI345.git
+   git clone https://github.com/c/CSCI345.git
    cd CSCI345\Repair_Rush\
    ```
 
@@ -75,7 +75,7 @@
    ```
 4. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/CSCI345.git
+   git clone https://github.com/carodriguezama/CSCI345.git
    cd CSCI345\Repair_Rush\
    ```
    
