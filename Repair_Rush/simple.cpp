@@ -35,13 +35,12 @@ class MyGame : public Game {
 public:
   MyGame(int level = 1) : Game() {
     which = 0;
+    start = true;
 
     font = TTF_OpenFont("./Fonts/BungeeSpice-Regular.ttf", 28);
     if (!font) {
       cerr << "Failed to load font: " << TTF_GetError() << endl;
     }
-
-    start = true;
 
     ifstream in("./game_textFiles/loadtools.txt");
     while (!in.eof()) {
@@ -124,7 +123,6 @@ public:
         }
     }
   }
-
 
   void loop() {
     SDL_Rect tableHitbox = {400, 300, 120, 80};
