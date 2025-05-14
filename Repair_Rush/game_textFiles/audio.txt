@@ -1,0 +1,3 @@
+./Sounds/footsteo.wav
+./Sounds/grab.wav
+./Sounds/GreenMeadows.ogg

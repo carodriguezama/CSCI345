@@ -26,20 +26,73 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/CSCI345.git
+   git clone https://github.com/c/CSCI345.git
    cd CSCI345\Repair_Rush\
    ```
 
 2. Make sure you have SDL2, SDL_ttf, and SDL_mixer installed. On Ubuntu:
    ```bash
-   sudo apt install libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev
+   sudo apt install libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev
    ```
 
 3. Compile and run the game:
    ```bash
-   make  # or use CMake if that's your build system
+   make run # or use CMake if that's your build system
    ```
+4. Delete the executable:
+   ```bash
+   make clean  # or use CMake if that's your build system
+   ```
+---
 
+
+
+# Installation & Setup MSYS2
+
+## Setting Up MSYS2
+
+1. **Install MSYS2**  
+   Download and install MSYS2 from [https://www.msys2.org](https://www.msys2.org).
+
+2. **Update Packages**
+
+   Open the **MSYS2 MSYS** terminal and run:
+
+   ```bash
+   pacman -Syu
+   ```
+   ```bash
+   pacman -Su
+   ```
+   ```bash
+   pacman -S base-devel mingw-w64-ucrt-x86_64-toolchain git
+   ```
+   ```bash
+   pacman -S mingw-w64-ucrt-x86_64-SDL2
+   pacman -S mingw-w64-ucrt-x86_64-SDL2_image \
+              mingw-w64-ucrt-x86_64-SDL2_mixer \
+              mingw-w64-ucrt-x86_64-SDL2_ttf
+   ```
+4. Clone the repository:
+   ```bash
+   git clone https://github.com/carodriguezama/CSCI345.git
+   cd CSCI345\Repair_Rush\
+   ```
+   
+5. Compile and run the game:
+   ```bash
+   make run # or use CMake if that's your build system
+   ```
+6. Delete the executable:
+   ```bash
+   Make clean  # or use CMake if that's your build system
+   ```
+7. To get MSYS2 Shell in VSCode:
+   Use this video [https://www.youtube.com](https://youtu.be/31tCOg8-foM).
+   or in the bash run to desired path
+   ```bash
+   cd /c/Users/<path to git repo>
+   ```
 ---
 
 ## Art & Sound
@@ -75,13 +128,19 @@
 *Tool Cabinet*  
 ![Gameplay Screenshot](Screen_Shots/Repair_Rush_Cabinet_Screen.png)
 
+*Mini Game*  
+![Gameplay Screenshot](Screen_Shots/Cooling.png)
+
+*Mini Game*  
+![Gameplay Screenshot](Screen_Shots/Unscrew.png)
+
+*Mini Game*  
+![Gameplay Screenshot](Screen_Shots/Solder.png)
+
 *Control Screen*  
 ![Gameplay Screenshot](Screen_Shots/Repair_Rush_Controls_Screen.png)
+
 ---
 
-## To do
-- **Add animations**
-- **Update Sounds**
-- **Added a bubble box around speech**
--  **Organize Code**
-
+## Collaborators
+Anthony Chica Carlos Ian Stephen Walker  

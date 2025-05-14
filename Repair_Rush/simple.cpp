@@ -15,7 +15,6 @@
 #include <vector>
 
 using namespace std;
-Mix_Music *music = nullptr;
 
 class MyGame : public Game {
   float dt;
@@ -23,9 +22,9 @@ class MyGame : public Game {
   vector<Sprite *> tools;
   vector<Sprite *> characters;
   vector<Tile *> background;
-  Sound *wave, *grab;
+  vector<Sound*> sounds;
   Text *text, *help;
-  string tool;
+  string tool,chan;
   bool start;
   TTF_Font *font;
   int which;
@@ -36,13 +35,12 @@ class MyGame : public Game {
 public:
   MyGame(int level = 1) : Game() {
     which = 0;
+    start = true;
 
     font = TTF_OpenFont("./Fonts/BungeeSpice-Regular.ttf", 28);
     if (!font) {
       cerr << "Failed to load font: " << TTF_GetError() << endl;
     }
-
-    start = true;
 
     ifstream in("./game_textFiles/loadtools.txt");
     while (!in.eof()) {
@@ -65,30 +63,65 @@ public:
     }
     bin.close();
 
+    ifstream ain("./game_textFiles/audio.txt");
+    while (!ain.eof()) {
+      ain >> tool; //>> chan >> frame;
+      sounds.push_back(new Sound(tool));
+    }
+    ain.close();
+
+    sounds[2]->loop();
+
     // ADD: mini-game background
     background.push_back(new Tile(
         getMM(), "Images/Background/serviceTable.png")); // background[5]
     minigame = new ServiceTable(getRen(), getMM(), which);
 
-    wave = new Sound("./Sounds/footsteo.wav");
-    grab = new Sound("./Sounds/grab.wav");
     text = new Text(getRen(), "PRESS ENTER", 45, 450, 300, false);
     help = new Text(getRen(), "please help me my computer is overheating", 12,
                     460, 150);
     dt = .01;
-
-    music = Mix_LoadMUS("./Sounds/Green Meadows.ogg");
-    if (!music) {
-      cerr << "Failed to load music: " << Mix_GetError() << endl;
-    } else {
-      Mix_PlayMusic(music, -1);
-      Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
-    }
   }
   void selectCharacter(int index) {
     for (int i = 0; i < characters.size(); i++)
       characters[i]->setActive(i == index);
     which = 2;
+  }
+  
+  void handleMovement(SDL_Keycode key) {
+    int character = (key >= SDLK_UP && key <= SDLK_RIGHT) ? 1 : 0;
+
+    int dx = 0, dy = 0;
+    bool vertical = false, direction = false;
+
+    switch (key) {
+        case SDLK_w: dy = -10; vertical = true; break;
+        case SDLK_s: dy = 10;  vertical = true; break;
+        case SDLK_a: dx = -10; direction = true; break;
+        case SDLK_d: dx = 10;  direction = false; break;
+
+        case SDLK_UP:    dy = -10; vertical = true; break;
+        case SDLK_DOWN:  dy = 10;  vertical = true; break;
+        case SDLK_LEFT:  dx = -10; direction = true; break;
+        case SDLK_RIGHT: dx = 10;  direction = false; break;
+    }
+
+    if (tools[6]->isActive()) {
+        if (dx != 0) tools[6]->setx(dx);
+        if (dy != 0) tools[6]->sety(dy);
+    } else {
+        if (characters[character]->isActive()) {
+            if (dx != 0) {
+                characters[character]->setx(dx);
+                characters[character]->setDirection(direction);
+            }
+            if (dy != 0) {
+                characters[character]->sety(dy);
+                characters[character]->walkingVertical(vertical);
+            }
+            sounds[0]->play();
+        }
+    }
   }
 
   void loop() {
@@ -150,7 +183,7 @@ public:
       for (int i = 0; i < 5; i++)
         if (tools[i]->isActive())
           tools[i]->render(getRen());
-      tools[6]->render(getRen());
+          tools[6]->render(getRen());
     }
 
     SDL_RenderPresent(getRen());
@@ -159,163 +192,67 @@ public:
 
     if (SDL_PollEvent(&event)) {
       if (event.type == SDL_KEYDOWN) {
-        if (event.key.keysym.sym == SDLK_1)
-          selectCharacter(0);
-        if (event.key.keysym.sym == SDLK_2)
-          selectCharacter(1);
-        if (event.key.keysym.sym == SDLK_3)
-          selectCharacter(2);
+      SDL_Keycode key = event.key.keysym.sym;
 
-        if (event.key.keysym.sym == SDLK_RETURN) {
-          for (auto c : characters)
-            c->setActive(
-                false); // <- DISABLE all characters for selection screen
-          which = 1;
-        }
+      switch (key) {
+          case SDLK_1: selectCharacter(0); break;
+          case SDLK_2: selectCharacter(1); break;
+          case SDLK_3: selectCharacter(2); break;
 
-        if (event.key.keysym.sym == SDLK_r)
-          which = 3;
-        if (event.key.keysym.sym == SDLK_b)
-          which = 2;
-        if (event.key.keysym.sym == SDLK_c)
-          which = 4;
+          case SDLK_RETURN:
+              for (auto c : characters) c->setActive(false);
+              which = 1;
+              break;
 
-        if (event.key.keysym.sym==SDLK_m) {
-          MotherboardMinigame mb(getRen(), getMM(), successfulJobs);
-          mb.run();
-        }
-        if (event.type == SDL_KEYDOWN) {
-          if (event.key.keysym.sym == SDLK_e) {
-            SolderingGame sd(getRen(), getMM(), successfulJobs);
-            sd.run();  // Starts the mini-game
-           } 
-        }
-        
-        if (event.key.keysym.sym == SDLK_h) {
-          showControlsScreen(getRen(), font);
-        }
-        if (event.key.keysym.sym == SDLK_ESCAPE)
-          running = false;
+          case SDLK_r: which = 3; break;
+          case SDLK_b: which = 2; break;
+          case SDLK_c: which = 4; break;
+          case SDLK_i: if (which != 5) which = 5; break;
 
-        if (event.key.keysym.sym == SDLK_SPACE) {
-          for (int i = 0; i < 5; i++) {
-            if (tools[i]->isActive()) {
-              tools[i]->setActive(!tools[6]->isTouching(*tools[i]));
-              grab->play();
-            }
+          case SDLK_m: {
+              MotherboardMinigame mb(getRen(), getMM(), successfulJobs);
+              mb.run();
+              break;
           }
-        }
 
-        if (event.key.keysym.sym == SDLK_w) {
-          if (tools[6]->isActive())
-            tools[6]->sety(-10);
-          else {
-            for (int i = 0; i < 3; i++)
-              if (characters[i]->isActive())
-                characters[i]->sety(-10);
-            wave->play();
+          case SDLK_e: {
+              SolderingGame sd(getRen(), getMM(), successfulJobs);
+              sd.run();
+              break;
           }
-        }
 
-        if (event.key.keysym.sym == SDLK_s) {
-          int character = 0;
-          if (tools[6]->isActive())
-            tools[6]->sety(10);
-          else {
-            if (characters[character]->isActive()) {
-              characters[character]->sety(10);
-              characters[character]->walkingVertical(true);
-            }
-            wave->play();
-          }
-        }
+          case SDLK_h:
+              showControlsScreen(getRen(), font);
+              break;
 
-        if (event.key.keysym.sym == SDLK_a) {
-          int character = 0;
-          if (tools[6]->isActive()) {
-            tools[6]->setx(-10);
-          } else {
-            if (characters[character]->isActive()) {
-              characters[character]->setx(-10);
-              characters[character]->setDirection(true);
-            }
-            wave->play();
-          }
-        }
+          case SDLK_ESCAPE:
+              running = false;
+              break;
 
-        if (event.key.keysym.sym == SDLK_d) {
-          int character = 0;
-          if (tools[6]->isActive()) {
-            tools[6]->setx(10);
-          } else {
-            if (characters[character]->isActive()) {
-              characters[character]->setx(10);
-              characters[character]->setDirection(false);
-            }
-            wave->play();
-          }
-        }
+          case SDLK_SPACE:
+              for (int i = 0; i < 5; ++i) {
+                  if (tools[i]->isActive()) {
+                      tools[i]->setActive(!tools[6]->isTouching(*tools[i]));
+                      sounds[1]->play();
+                  }
+              }
+              break;
 
-        if (event.key.keysym.sym == SDLK_UP) {
-          int character = 1;
-          if (tools[6]->isActive())
-            tools[6]->sety(-10);
-          else {
-            if (characters[character]->isActive()) {
-              characters[character]->sety(-10);
-              characters[character]->walkingVertical(true);
-            }
-            wave->play();
-          }
-        }
+          case SDLK_w:
+          case SDLK_s:
+          case SDLK_a:
+          case SDLK_d:
+          case SDLK_UP:
+          case SDLK_DOWN:
+          case SDLK_LEFT:
+          case SDLK_RIGHT:
+              handleMovement(key);
+              break;
 
-        if (event.key.keysym.sym == SDLK_DOWN) {
-          int character = 1;
-          if (tools[6]->isActive())
-            tools[6]->sety(10);
-          else {
-            if (characters[character]->isActive()) {
-              characters[character]->sety(10);
-              characters[character]->walkingVertical(true);
-            }
-            wave->play();
-          }
-        }
-
-        if (event.key.keysym.sym == SDLK_LEFT) {
-          int character = 1;
-          if (tools[6]->isActive()) {
-            tools[6]->setx(-10);
-          } else {
-            if (characters[character]->isActive()) {
-              characters[character]->setx(-10);
-              characters[character]->setDirection(true);
-            }
-            wave->play();
-          }
-        }
-
-        if (event.key.keysym.sym == SDLK_RIGHT) {
-          int character = 1;
-          if (tools[6]->isActive()) {
-            tools[6]->setx(10);
-          } else {
-            if (characters[character]->isActive()) {
-              characters[character]->setx(10);
-              characters[character]->setDirection(false);
-              wave->play();
-            }
-          }
-        }
-
-        // ENTER MINI-GAME
-        if (event.key.keysym.sym == SDLK_i) {
-          if (which != 5) {
-            which = 5;
-          }
-        }
+          default:
+              break;
       }
-
+    }
       if (event.type == SDL_WINDOWEVENT) {
         if (event.window.event == SDL_WINDOWEVENT_CLOSE)
           running = false;
@@ -324,8 +261,11 @@ public:
   }
 
   ~MyGame() {
-    wave->free();
-    grab->free();
+    for (int i = 0; i < sounds.size();i++) {
+      sounds[i]->free();
+      delete sounds[i];
+    }
+
     for (auto tool : tools)
       delete tool;
     for (auto tool : characters)
@@ -334,14 +274,12 @@ public:
       delete tool;
     text->destroy();
     help->destroy();
-    Mix_HaltMusic();
-    Mix_FreeMusic(music);
     TTF_CloseFont(font);
     delete minigame;
   }
 };
 
-int main(void) {
+int main(int argc, char* argv[]) {
   MyGame game(1);
   game.run();
   return 0;
